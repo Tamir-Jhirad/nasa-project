@@ -10,6 +10,7 @@ import { SizeDistribution } from "@/components/charts/SizeDistribution";
 import { RiskRadar } from "@/components/charts/RiskRadar";
 import { MethodologySection } from "@/components/methodology/MethodologySection";
 import { Filter } from "lucide-react";
+import { EarthGlobeWrapper } from "@/components/globe/EarthGlobeWrapper";
 
 interface Props {
   initialObjects: NeoObject[];
@@ -63,6 +64,21 @@ export function DashboardClient({ initialObjects }: Props) {
             {filtered.length} objects
           </span>
         </div>
+
+        {/* Globe section */}
+        <section className="bg-space-900 border border-space-700 rounded-xl p-4 sm:p-6">
+          <h2 className="text-sm font-mono text-slate-400 uppercase tracking-widest mb-1">
+            Approach Trajectories
+          </h2>
+          <p className="text-xs text-slate-500 mb-4">
+            Animated arcs show each asteroid&apos;s path relative to Earth. Arc height = miss distance.{" "}
+            <span className="text-slate-600 italic">
+              Arc positions are approximate — NASA does not publish the exact direction each
+              asteroid approaches from, so positions are derived from the asteroid&apos;s name.
+            </span>
+          </p>
+          <EarthGlobeWrapper objects={filtered} />
+        </section>
 
         {/* Charts row */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
