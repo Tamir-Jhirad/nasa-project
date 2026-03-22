@@ -33,6 +33,8 @@ export async function GET() {
     clearTimeout(timer);
 
     if (!res.ok) {
+      const text = await res.text().catch(() => "");
+      console.error(`[close-approaches] NASA CAD API error ${res.status}:`, text);
       return NextResponse.json(
         { error: `NASA API error: ${res.status}` },
         { status: 502 }
@@ -40,6 +42,16 @@ export async function GET() {
     }
 
     const raw = await res.json();
+
+    if (!Array.isArray(raw.fields) || !Array.isArray(raw.data)) {
+      const detail = raw.message ?? "Unexpected response shape";
+      console.error("[close-approaches] NASA CAD API unexpected shape:", detail);
+      return NextResponse.json(
+        { error: `NASA API returned unexpected shape: ${detail}` },
+        { status: 502 }
+      );
+    }
+
     const objects = parseCadResponse(raw);
 
     const body: CloseApproachesResponse = {
@@ -54,6 +66,7 @@ export async function GET() {
     if (err instanceof Error && err.name === "AbortError") {
       return NextResponse.json({ error: "NASA API timeout" }, { status: 504 });
     }
+    console.error("[close-approaches] Unexpected error:", err);
     return NextResponse.json({ error: "Unexpected error" }, { status: 500 });
   }
 }
