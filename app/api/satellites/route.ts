@@ -2,6 +2,7 @@
 import { NextResponse } from "next/server";
 import { parseGpResponse } from "@/lib/celestrak/gpParser";
 import type { SatelliteResponse, SatelliteObject } from "@/lib/celestrak/types";
+import { FALLBACK_TLE_TEXT, FALLBACK_SNAPSHOT_DATE } from "@/lib/celestrak/fallbackTles";
 
 // Primary URL — all active payloads (~10 000 satellites, 3–4 MB TLE text)
 const PRIMARY_URL =
@@ -144,8 +145,19 @@ export async function GET() {
   const objects = dedupeByNorad(combined);
 
   if (objects.length === 0) {
-    console.error("[satellites] all fetches failed — returning 503");
-    return NextResponse.json({ error: "CelesTrak unavailable" }, { status: 503 });
+    // Last resort: serve the bundled demo dataset (CelesTrak unreachable)
+    console.warn(`[satellites] all network fetches failed — serving bundled fallback (snapshot: ${FALLBACK_SNAPSHOT_DATE})`);
+    const fallbackObjects = parseGpResponse(FALLBACK_TLE_TEXT);
+    if (fallbackObjects.length === 0) {
+      console.error("[satellites] fallback TLE parse returned 0 objects — returning 503");
+      return NextResponse.json({ error: "CelesTrak unavailable" }, { status: 503 });
+    }
+    const fallbackBody: SatelliteResponse = {
+      count: fallbackObjects.length,
+      revalidatedAt: new Date().toISOString(),
+      objects: fallbackObjects,
+    };
+    return NextResponse.json(fallbackBody);
   }
 
   console.log(`[satellites] fallback OK — ${objects.length} satellites total`);
