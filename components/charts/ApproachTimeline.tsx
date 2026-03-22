@@ -11,7 +11,8 @@ interface Props {
 export function ApproachTimeline({ objects }: Props) {
   // Group by week, count objects
   const weekly = objects.reduce<Record<string, number>>((acc, o) => {
-    const d = new Date(o.closeApproachDate);
+    // Strip time to avoid UTC-vs-local timezone bucketing errors at day boundaries
+    const d = new Date(o.closeApproachDate.split("T")[0]);
     // Round down to Monday of that week
     const dayOfWeek = d.getDay();
     const monday = new Date(d);

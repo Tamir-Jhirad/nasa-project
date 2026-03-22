@@ -37,8 +37,8 @@ export function SizeDistribution({ objects }: Props) {
             contentStyle={{ background: "#0f172a", border: "1px solid #334155", borderRadius: 6, fontSize: 12, fontFamily: "monospace" }}
           />
           <Bar dataKey="count" name="Objects" radius={[4, 4, 0, 0]}>
-            {data.map((_, i) => (
-              <Cell key={i} fill={`hsl(${200 + i * 20}, 70%, ${45 + i * 5}%)`} />
+            {data.map((d, i) => (
+              <Cell key={d.label} fill={`hsl(${200 + i * 20}, 70%, ${45 + i * 5}%)`} />
             ))}
           </Bar>
         </BarChart>
