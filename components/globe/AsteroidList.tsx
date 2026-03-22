@@ -16,9 +16,9 @@ const DOT_CLASS: Record<RiskCategory, string> = {
 };
 
 const BORDER_CLASS: Record<RiskCategory, string> = {
-  Critical: "border-l-red-500",
-  Watchlist: "border-l-amber-400",
-  Safe:      "border-l-green-500",
+  Critical: "border-l-neo-critical",
+  Watchlist: "border-l-neo-watchlist",
+  Safe:      "border-l-neo-safe",
 };
 
 export function AsteroidList({ objects, selectedDes, onSelectDes }: Props) {
