@@ -1,0 +1,16 @@
+{
+  "name": "NEO-Guardian",
+  "short_name": "NEO-Guardian",
+  "description": "Real-time Asteroid Proximity & Risk Dashboard",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#030712",
+  "theme_color": "#38bdf8",
+  "icons": [
+    {
+      "src": "/favicon.ico",
+      "sizes": "any",
+      "type": "image/x-icon"
+    }
+  ]
+}
