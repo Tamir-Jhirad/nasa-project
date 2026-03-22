@@ -13,6 +13,9 @@ export const metadata: Metadata = {
     statusBarStyle: "black-translucent",
     title: "NEO-Guardian",
   },
+  icons: {
+    apple: "/apple-touch-icon.png",
+  },
 };
 
 export const viewport: Viewport = {
