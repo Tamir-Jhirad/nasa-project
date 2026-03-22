@@ -32,7 +32,7 @@ export function RiskRadar({ objects }: Props) {
 
   return (
     <div className="bg-space-800 border border-space-600 rounded-lg p-4">
-      <h3 className="text-xs font-mono text-slate-400 uppercase tracking-widest mb-4">
+      <h3 className="text-xs font-mono text-slate-400 uppercase tracking-widest mb-1">
         Speed vs. Distance
       </h3>
       <p className="text-xs text-slate-500 mb-3">
