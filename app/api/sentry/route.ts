@@ -16,10 +16,21 @@ export async function GET() {
     clearTimeout(timer);
 
     if (!res.ok) {
+      const text = await res.text().catch(() => "");
+      console.error(`[sentry] NASA Sentry API error ${res.status}:`, text);
       return NextResponse.json({ error: `NASA Sentry API error: ${res.status}` }, { status: 502 });
     }
 
     const raw = await res.json();
+
+    if (!Array.isArray(raw.data)) {
+      const detail = raw.message ?? "Unexpected response shape";
+      console.error("[sentry] NASA Sentry API unexpected shape:", detail);
+      return NextResponse.json(
+        { error: `NASA Sentry API returned unexpected shape: ${detail}` },
+        { status: 502 }
+      );
+    }
 
     // Sort by impact probability descending and take top 50
     const sorted = [...raw.data].sort(
@@ -30,11 +41,11 @@ export async function GET() {
       des: item.des,
       fullname: (item.fullname ?? item.des ?? "").trim(),
       diameterKm: parseFloat(item.diameter),
-      velocityKmS: parseFloat(item.v_inf),
+      velocityKmS: item.v_inf != null ? parseFloat(item.v_inf) : null,
       impactProbability: parseFloat(item.ip),
-      palmeroScale: parseFloat(item.ps_max),
+      palmeroScale: item.ps_max != null ? parseFloat(item.ps_max) : null,
       impactYearRange: item.range,
-      nImpacts: item.n_imp,
+      nImpacts: parseInt(item.n_imp, 10),
     }));
 
     const body: SentryResponse = {
@@ -49,6 +60,7 @@ export async function GET() {
     if (err instanceof Error && err.name === "AbortError") {
       return NextResponse.json({ error: "Sentry API timeout" }, { status: 504 });
     }
+    console.error("[sentry] Unexpected error:", err);
     return NextResponse.json({ error: "Unexpected error" }, { status: 500 });
   }
 }

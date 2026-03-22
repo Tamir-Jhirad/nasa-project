@@ -21,9 +21,9 @@ export interface SentryObject {
   des: string;
   fullname: string;
   diameterKm: number;
-  velocityKmS: number;
+  velocityKmS: number | null;
   impactProbability: number;   // e.g. 0.002743
-  palmeroScale: number;        // ps_max as number
+  palmeroScale: number | null; // ps_max as number
   impactYearRange: string;     // e.g. "2056-2113"
   nImpacts: number;
 }
