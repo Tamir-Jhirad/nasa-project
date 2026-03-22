@@ -45,11 +45,11 @@ export function NeoTable({ objects }: Props) {
   );
 
   return (
-    <div className="overflow-auto rounded-lg border border-space-600">
+    <div className="overflow-x-auto rounded-lg border border-space-600">
       <table className="w-full text-sm">
         <thead className="bg-space-800 border-b border-space-600">
           <tr>
-            <th className="px-3 py-2 text-left text-xs font-mono text-slate-400">Object</th>
+            <th className="px-3 py-2 text-left text-xs font-mono text-slate-400 sticky left-0 bg-space-800 z-10">Object</th>
             <Th label="Close Approach" sk="closeApproachDate" />
             <Th label="Miss Dist (AU)" sk="distAu" />
             <Th label="Velocity (km/s)" sk="velocityKmS" />
@@ -60,8 +60,10 @@ export function NeoTable({ objects }: Props) {
         </thead>
         <tbody className="divide-y divide-space-700">
           {sorted.map(obj => (
-            <tr key={`${obj.des}-${obj.closeApproachDate}`} className="hover:bg-space-800/60 transition-colors">
-              <td className="px-3 py-2 font-mono text-neo-accent text-xs">{obj.fullname || obj.des}</td>
+            <tr key={`${obj.des}-${obj.closeApproachDate}`} className="group hover:bg-space-800/60 transition-colors">
+              <td className="px-3 py-2 font-mono text-neo-accent text-xs sticky left-0 bg-space-950 group-hover:bg-space-800/60 transition-colors z-10 whitespace-nowrap">
+                {obj.fullname || obj.des}
+              </td>
               <td className="px-3 py-2 font-mono text-xs text-slate-300">
                 {new Date(obj.closeApproachDate).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}
               </td>
