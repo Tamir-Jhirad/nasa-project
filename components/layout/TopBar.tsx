@@ -20,24 +20,24 @@ export function TopBar({ objects, revalidatedAt }: Props) {
   return (
     <header className="border-b border-space-600 bg-space-900">
       {/* Title bar */}
-      <div className="flex items-center justify-between px-6 py-3 border-b border-space-700">
-        <div className="flex items-center gap-3">
-          <Shield className="text-neo-accent" size={24} />
-          <span className="font-mono font-bold text-lg tracking-widest text-neo-accent uppercase">
+      <div className="flex items-center justify-between px-4 sm:px-6 py-3 border-b border-space-700">
+        <div className="flex items-center gap-3 min-w-0">
+          <Shield className="text-neo-accent shrink-0" size={24} />
+          <span className="font-mono font-bold text-lg tracking-widest text-neo-accent uppercase shrink-0">
             NEO-Guardian
           </span>
-          <span className="text-xs text-slate-500 font-mono">
+          <span className="hidden sm:inline text-xs text-slate-500 font-mono truncate">
             Real-time Asteroid Proximity &amp; Risk Dashboard
           </span>
         </div>
-        <div className="flex items-center gap-2 text-xs font-mono text-slate-500">
+        <div className="hidden sm:flex items-center gap-2 text-xs font-mono text-slate-500 shrink-0">
           <Clock size={12} />
           <span>Updated: {new Date(revalidatedAt).toUTCString()}</span>
         </div>
       </div>
 
       {/* Stat cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 px-6 py-4">
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 px-4 sm:px-6 py-3 sm:py-4">
         <StatCard
           label="Objects Tracked"
           value={objects.length}
