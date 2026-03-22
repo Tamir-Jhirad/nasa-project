@@ -1,7 +1,7 @@
 // components/globe/EarthGlobeWrapper.tsx
 "use client";
 
-import { useState } from "react";
+import { useState, useMemo, useEffect } from "react";
 import dynamic from "next/dynamic";
 import { X } from "lucide-react";
 import type { NeoObject } from "@/lib/nasa/types";
@@ -29,8 +29,15 @@ export function EarthGlobeWrapper({ objects }: Props) {
   const [selectedDes, setSelectedDes] = useState<string | null>(null);
 
   // Cap at 50 objects, prioritising highest-risk first
-  const limited = limitGlobeObjects(objects, 50);
+  const limited = useMemo(() => limitGlobeObjects(objects, 50), [objects]);
   const selected = selectedDes ? limited.find(o => o.des === selectedDes) ?? null : null;
+
+  // Clear selectedDes when the selected asteroid is filtered out
+  useEffect(() => {
+    if (selectedDes && !limited.some(o => o.des === selectedDes)) {
+      setSelectedDes(null);
+    }
+  }, [limited, selectedDes]);
 
   return (
     <div className="flex flex-col lg:flex-row gap-6 items-start">
@@ -66,7 +73,7 @@ export function EarthGlobeWrapper({ objects }: Props) {
             <RiskBadge category={selected.riskCategory} />
             <dl className="space-y-1.5 text-xs font-mono">
               <Row label="Miss distance" value={`${(selected.distAu * 384400).toFixed(0)} × Moon`} />
-              <Row label="Speed" value={`${selected.velocityKmS.toFixed(1)} km/s`} />
+              <Row label="Speed" value={selected.velocityKmS != null ? `${selected.velocityKmS.toFixed(1)} km/s` : "N/A"} />
               <Row label="Diameter" value={`~${(selected.diameterKm * 1000).toFixed(0)} m`} />
               <Row label="Risk score" value={selected.riskScore.toFixed(2)} />
               <Row
