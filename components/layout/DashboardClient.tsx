@@ -4,6 +4,7 @@ import { useState, useMemo } from "react";
 import type { NeoObject } from "@/lib/nasa/types";
 import { Sidebar, type FilterState } from "@/components/layout/Sidebar";
 import { MobileDrawer } from "@/components/layout/MobileDrawer";
+import { HeroIntro } from "@/components/layout/HeroIntro";
 import { NeoTable } from "@/components/table/NeoTable";
 import { ApproachTimeline } from "@/components/charts/ApproachTimeline";
 import { SizeDistribution } from "@/components/charts/SizeDistribution";
@@ -51,6 +52,8 @@ export function DashboardClient({ initialObjects }: Props) {
       </div>
 
       <main className="flex-1 overflow-y-auto p-4 sm:p-6 space-y-6">
+        <HeroIntro />
+
         {/* Mobile filter button — hidden on desktop */}
         <div className="flex items-center md:hidden">
           <button
