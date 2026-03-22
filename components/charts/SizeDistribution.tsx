@@ -25,9 +25,13 @@ export function SizeDistribution({ objects }: Props) {
 
   return (
     <div className="bg-space-800 border border-space-600 rounded-lg p-4">
-      <h3 className="text-xs font-mono text-slate-400 uppercase tracking-widest mb-4">
+      <h3 className="text-xs font-mono text-slate-400 uppercase tracking-widest mb-1">
         Object Size Distribution
       </h3>
+      <p className="text-xs text-slate-500 mb-3">
+        Most near-Earth asteroids are small (&lt;50 m) — roughly the size of a house.
+        Objects above 1 km would have global consequences.
+      </p>
       <ResponsiveContainer width="100%" height={200}>
         <BarChart data={data}>
           <CartesianGrid strokeDasharray="3 3" stroke="#334155" />

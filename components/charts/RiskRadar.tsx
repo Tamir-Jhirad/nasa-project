@@ -33,10 +33,12 @@ export function RiskRadar({ objects }: Props) {
   return (
     <div className="bg-space-800 border border-space-600 rounded-lg p-4">
       <h3 className="text-xs font-mono text-slate-400 uppercase tracking-widest mb-4">
-        Risk Radar — Velocity vs. Miss Distance
+        Speed vs. Distance
       </h3>
-      <p className="text-xs text-slate-500 font-mono mb-3">
-        Bubble size = estimated diameter · Closer + Faster + Larger = higher risk
+      <p className="text-xs text-slate-500 mb-3">
+        Each dot is one asteroid. Closer to the left = nearer to Earth.
+        Higher up = faster. Bigger dot = larger asteroid.
+        Red dots are the ones to watch.
       </p>
       <ResponsiveContainer width="100%" height={260}>
         <ScatterChart>

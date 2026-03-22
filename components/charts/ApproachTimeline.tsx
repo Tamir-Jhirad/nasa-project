@@ -32,9 +32,13 @@ export function ApproachTimeline({ objects }: Props) {
 
   return (
     <div className="bg-space-800 border border-space-600 rounded-lg p-4">
-      <h3 className="text-xs font-mono text-slate-400 uppercase tracking-widest mb-4">
+      <h3 className="text-xs font-mono text-slate-400 uppercase tracking-widest mb-1">
         Close Approaches per Week
       </h3>
+      <p className="text-xs text-slate-500 mb-3">
+        How many asteroids fly past each week over the next 6 months.
+        Peaks indicate busy periods — not increased danger.
+      </p>
       <ResponsiveContainer width="100%" height={200}>
         <LineChart data={data}>
           <CartesianGrid strokeDasharray="3 3" stroke="#334155" />
