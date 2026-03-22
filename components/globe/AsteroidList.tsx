@@ -31,7 +31,7 @@ export function AsteroidList({ objects, selectedDes, onSelectDes }: Props) {
   }
 
   return (
-    <div className="max-h-[280px] overflow-y-auto">
+    <div role="list" aria-label="Asteroid list" className="max-h-[280px] overflow-y-auto">
       {objects.map((o) => {
         const isSelected = o.des === selectedDes;
         return (
