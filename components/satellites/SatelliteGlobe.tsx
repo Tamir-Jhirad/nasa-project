@@ -73,6 +73,11 @@ export function SatelliteGlobe({
   const globeEl = useRef<GlobeInstance | null>(null);
   const orbitMeshRef = useRef<THREE.Line | null>(null);
   const liveDotRef = useRef<THREE.Mesh | null>(null);
+  const onLivePositionRef = useRef(onLivePosition);
+
+  useEffect(() => {
+    onLivePositionRef.current = onLivePosition;
+  }, [onLivePosition]);
 
   // Initial camera position
   useEffect(() => {
@@ -173,7 +178,7 @@ export function SatelliteGlobe({
       );
 
       // Notify parent so detail panel shows same position (single source of truth)
-      onLivePosition?.(latRad * (180 / Math.PI), lngRad * (180 / Math.PI));
+      onLivePositionRef.current?.(latRad * (180 / Math.PI), lngRad * (180 / Math.PI));
     }
 
     updateLivePosition();

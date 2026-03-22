@@ -1,3 +1,4 @@
+"use client";
 // components/satellites/SatelliteSidebar.tsx
 import type { SatelliteObject, Constellation, OrbitClass } from "@/lib/celestrak/types";
 

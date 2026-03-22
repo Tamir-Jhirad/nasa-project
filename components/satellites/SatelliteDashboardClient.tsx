@@ -57,7 +57,7 @@ export function SatelliteDashboardClient({ initialObjects }: Props) {
   }, [initialObjects, filters]);
 
   const selected = selectedNoradId
-    ? filtered.find((o) => o.noradId === selectedNoradId) ?? null
+    ? initialObjects.find((o) => o.noradId === selectedNoradId) ?? null
     : null;
 
   return (
