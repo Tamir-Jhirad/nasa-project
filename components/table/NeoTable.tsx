@@ -61,7 +61,7 @@ export function NeoTable({ objects }: Props) {
         <tbody className="divide-y divide-space-700">
           {sorted.map(obj => (
             <tr key={`${obj.des}-${obj.closeApproachDate}`} className="group hover:bg-space-800/60 transition-colors">
-              <td className="px-3 py-2 font-mono text-neo-accent text-xs sticky left-0 bg-space-950 group-hover:bg-space-800/60 transition-colors z-10 whitespace-nowrap">
+              <td className="px-3 py-2 font-mono text-neo-accent text-xs sticky left-0 bg-space-950 group-hover:bg-space-800 transition-colors z-10 whitespace-nowrap">
                 {obj.fullname || obj.des}
               </td>
               <td className="px-3 py-2 font-mono text-xs text-slate-300">

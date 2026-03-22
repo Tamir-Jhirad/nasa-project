@@ -12,9 +12,8 @@ export const metadata: Metadata = {
     capable: true,
     statusBarStyle: "black-translucent",
     title: "NEO-Guardian",
-  },
-  icons: {
-    apple: "/apple-touch-icon.png",
+    // To enable iOS home-screen icon: add public/apple-touch-icon.png (180x180 PNG)
+    // and add icons: { apple: "/apple-touch-icon.png" } to this metadata object.
   },
 };
 
