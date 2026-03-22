@@ -56,7 +56,9 @@ export function EarthGlobe({ objects, selectedDes, onSelectDes, width = 480, hei
       if (orbitMeshRef.current && globe) {
         globe.scene().remove(orbitMeshRef.current);
         orbitMeshRef.current.geometry.dispose();
-        (orbitMeshRef.current.material as THREE.Material).dispose();
+        const mat = orbitMeshRef.current.material;
+        if (Array.isArray(mat)) mat.forEach((m) => m.dispose());
+        else mat.dispose();
         orbitMeshRef.current = null;
       }
     }
