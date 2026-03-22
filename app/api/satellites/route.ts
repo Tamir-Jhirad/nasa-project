@@ -3,7 +3,7 @@ import { NextResponse } from "next/server";
 import { parseGpResponse } from "@/lib/celestrak/gpParser";
 import type { SatelliteResponse } from "@/lib/celestrak/types";
 
-const GP_URL = "https://celestrak.org/gp.php?GROUP=active&FORMAT=json";
+const GP_URL = "https://celestrak.org/NORAD/elements/gp.php?GROUP=active&FORMAT=tle";
 const TIMEOUT_MS = 10_000;
 
 // Node.js runtime (NOT edge) — response can be 3-4 MB, edge limit is 4 MB
@@ -26,9 +26,9 @@ export async function GET() {
       );
     }
 
-    const raw = await res.json();
+    const raw = await res.text();
 
-    if (!Array.isArray(raw)) {
+    if (typeof raw !== "string" || !raw.includes("1 ")) {
       console.error("[satellites] CelesTrak returned unexpected shape");
       return NextResponse.json(
         { error: "CelesTrak returned unexpected shape" },
