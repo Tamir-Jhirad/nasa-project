@@ -71,9 +71,17 @@ Server Component. Imports the route handler directly (same pattern as home page 
 ```typescript
 export type OrbitClass = "LEO" | "MEO" | "GEO" | "HEO";
 
+/** All possible constellation values — produced by detectConstellation() in constellationDetect.ts */
 export type Constellation =
-  | "Starlink" | "OneWeb" | "GPS" | "Galileo" | "GLONASS"
-  | "Space Station" | "Weather" | "Science" | "Other";
+  | "Starlink"       // name.startsWith("STARLINK")
+  | "OneWeb"         // name.startsWith("ONEWEB")
+  | "GPS"            // name.includes("GPS") || name.includes("NAVSTAR")
+  | "Galileo"        // name.startsWith("GALILEO")
+  | "GLONASS"        // name.startsWith("GLONASS")
+  | "Space Station"  // name.includes("ISS") || name.includes("TIANGONG") || name.includes("CSS")
+  | "Weather"        // name.includes("NOAA") || name.includes("GOES") || name.includes("METEOSAT") || name.includes("METEOR")
+  | "Science"        // name.includes("HUBBLE") || name.includes("CHANDRA")
+  | "Other";         // everything else
 
 export interface SatelliteObject {
   noradId: number;           // NORAD_CAT_ID
@@ -81,7 +89,7 @@ export interface SatelliteObject {
   intlDesignator: string;    // OBJECT_ID e.g. "1998-067A"
   countryCode: string;       // COUNTRY_CODE
   launchDate: string;        // LAUNCH_DATE ISO e.g. "1998-11-20"
-  launchYear: number;        // derived: parseInt(LAUNCH_DATE.slice(0,4))
+  launchYear: number;        // derived: parseInt((OBJECT_ID ?? "").slice(0,4)) || 0  — 0 if OBJECT_ID absent
   orbitClass: OrbitClass;
   apogeeKm: number;          // APOAPSIS
   perigeeKm: number;         // PERIAPSIS
@@ -201,17 +209,19 @@ a_ER = a_km / 6371            (Earth radii, dimensionless)
 ```typescript
 // SatelliteOrbitalElements — separate from OrbitalElements (which uses AU)
 export interface SatelliteOrbitalElements {
-  a: number;   // semi-major axis in Earth radii
-  e: number;   // eccentricity
-  i: number;   // inclination (degrees)
-  om: number;  // RAAN — RA_OF_ASC_NODE (degrees)
-  w: number;   // argument of pericenter — ARG_OF_PERICENTER (degrees)
+  a: number;   // semi-major axis in Earth radii (dimensionless)
+  e: number;   // eccentricity (dimensionless, 0–1)
+  i: number;   // inclination in degrees
+  om: number;  // RAAN — RA_OF_ASC_NODE in degrees
+  w: number;   // argument of pericenter — ARG_OF_PERICENTER in degrees
 }
 ```
 
 ### THREE.js coordinate mapping
 
-`react-globe.gl` uses a Y-up scene where the globe's polar axis is the THREE.js Y axis. The required axis swap (matching the existing `EarthGlobe.tsx` convention) is:
+`react-globe.gl` renders its Earth sphere at **radius = 100 THREE.js units** (this is the library default and matches the `GLOBE_AU_SCALE = 300` convention used by the existing `EarthGlobe`, where 1 AU → 300 units and Earth radius ≈ 100 units). Therefore `GLOBE_ER_SCALE = 100` (1 Earth radius → 100 THREE.js units) places satellite orbits at the correct visual altitude above the globe surface.
+
+The required axis swap (matching the existing `EarthGlobe.tsx` convention) is:
 
 ```
 x_three = x_orbital × GLOBE_ER_SCALE
@@ -359,7 +369,8 @@ package.json                — add satellite.js dependency
 | Package | Purpose |
 |---|---|
 | `satellite.js` | TLE propagation (SGP4): TLE → ECI → geodetic |
-| `@types/satellite.js` | TypeScript types |
+
+**Note:** `satellite.js` v4+ ships its own bundled TypeScript declarations. Do **not** install `@types/satellite.js` — it conflicts with the bundled types and will cause duplicate identifier errors.
 
 ---
 
@@ -371,6 +382,29 @@ package.json                — add satellite.js dependency
 | `constellationDetect.test.ts` | Each name-match rule; case-insensitivity; "Other" fallback |
 | `gpParser.test.ts` | Full GP record normalisation; filters missing/short TLE lines; derives `periodMin` from `MEAN_MOTION` |
 | `orbitMath.test.ts` | ISS: MEAN_MOTION = 15.49 rev/day → periodMin ≈ 92.96 min → a_km ≈ 6,798 km → a_ER ≈ 1.067; orbit points array length = nPoints+1; first point ≈ last point (closed ring, within float epsilon) |
+| `gpParser.test.ts` | See fixture below — full record produces correct SatelliteObject; record with TLE_LINE1.length≠69 is filtered; record with absent OBJECT_ID produces launchYear=0 |
+
+**gpParser test fixture (minimal valid GP record):**
+```json
+{
+  "OBJECT_NAME": "ISS (ZARYA)",
+  "OBJECT_ID": "1998-067A",
+  "NORAD_CAT_ID": 25544,
+  "OBJECT_TYPE": "PAYLOAD",
+  "MEAN_MOTION": 15.49,
+  "ECCENTRICITY": 0.0004,
+  "INCLINATION": 51.6421,
+  "RA_OF_ASC_NODE": 45.2,
+  "ARG_OF_PERICENTER": 60.3,
+  "APOAPSIS": 423.0,
+  "PERIAPSIS": 418.0,
+  "COUNTRY_CODE": "ISS",
+  "LAUNCH_DATE": "1998-11-20",
+  "TLE_LINE1": "1 25544U 98067A   26081.25000000  .00006000  00000-0  11111-3 0  9990",
+  "TLE_LINE2": "2 25544  51.6421  45.2000 0004000  60.3000 300.0000 15.49000000999990"
+}
+```
+Expected output: `{ noradId: 25544, name: "ISS (ZARYA)", launchYear: 1998, orbitClass: "LEO", constellation: "Space Station", periodMin: ≈92.96, raanDeg: 45.2, argOfPericenterDeg: 60.3 }`
 
 No live API calls in tests. All use fixture data.
 
