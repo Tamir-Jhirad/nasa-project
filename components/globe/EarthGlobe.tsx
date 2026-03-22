@@ -1,7 +1,7 @@
 // components/globe/EarthGlobe.tsx
 "use client";
 
-import { useRef, useEffect } from "react";
+import { useRef, useEffect, useCallback } from "react";
 import Globe from "react-globe.gl";
 import type { NeoObject } from "@/lib/nasa/types";
 import { toGlobeArcs, toGlobePoints, type GlobeArc } from "./globeUtils";
@@ -15,8 +15,13 @@ interface Props {
   height?: number;
 }
 
+interface GlobeInstance {
+  pointOfView: (pov: { lat: number; lng: number; altitude: number }, ms: number) => void;
+  controls: () => { autoRotate: boolean; autoRotateSpeed: number };
+}
+
 export function EarthGlobe({ objects, selectedDes, onSelectDes, width = 480, height = 480 }: Props) {
-  const globeEl = useRef<any>(null);
+  const globeEl = useRef<GlobeInstance | null>(null);
 
   // Start with a gentle tilt and auto-rotate
   useEffect(() => {
@@ -30,10 +35,12 @@ export function EarthGlobe({ objects, selectedDes, onSelectDes, width = 480, hei
   const arcs = toGlobeArcs(objects, selectedDes);
   const points = toGlobePoints(objects);
 
-  function handleArcClick(arc: GlobeArc) {
+  const handleArcClick = useCallback((arc: GlobeArc) => {
     // Toggle: clicking the already-selected arc deselects it
     onSelectDes(arc.des === selectedDes ? null : arc.des);
-  }
+  }, [selectedDes, onSelectDes]);
+
+  const getArcStroke = useCallback((arc: GlobeArc) => (arc.des === selectedDes ? 1.2 : 0.5), [selectedDes]);
 
   return (
     <Globe
@@ -56,7 +63,7 @@ export function EarthGlobe({ objects, selectedDes, onSelectDes, width = 480, hei
       arcDashLength={0.4}
       arcDashGap={0.2}
       arcDashAnimateTime={2500}
-      arcStroke={(arc: GlobeArc) => (arc.des === selectedDes ? 1.2 : 0.5)}
+      arcStroke={getArcStroke}
       onArcClick={handleArcClick}
       // Alert points (Watchlist / Critical only)
       pointsData={points}
