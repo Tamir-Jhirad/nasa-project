@@ -1,5 +1,6 @@
 // components/cards/StatCard.tsx
 import type { LucideIcon } from "lucide-react";
+import { cn } from "@/lib/utils";
 
 interface Props {
   label: string;
@@ -12,7 +13,7 @@ interface Props {
 export function StatCard({ label, value, sub, icon: Icon, iconColor = "text-neo-accent" }: Props) {
   return (
     <div className="bg-space-800 border border-space-600 rounded-lg p-4 flex items-start gap-3">
-      <div className={`mt-0.5 ${iconColor}`}>
+      <div className={cn("mt-0.5", iconColor)}>
         <Icon size={20} />
       </div>
       <div>
