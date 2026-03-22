@@ -21,6 +21,9 @@ NEO-Guardian tracks Near-Earth Objects (NEOs) — asteroids and comets that pass
   - Close approaches over time (line chart)
   - Object size distribution (bar chart)
   - Risk radar — velocity vs. miss distance scatter plot
+- **3D Earth globe** — interactive globe showing close-approach arcs for the top 50 highest-risk objects
+- **Asteroid selection list** — scrollable sidebar list; click any row or arc to select an asteroid and see its details
+- **Orbital ring visualization** — selecting an asteroid fetches its real Keplerian orbital elements from NASA's JPL SBDB and renders a live 3D elliptical orbit ring in the scene, colored by risk category
 - **Sortable data table** — click any column header to sort by date, distance, velocity, size, or risk score
 - **Methodology section** — explains the science and math behind the risk scoring, in plain language
 
@@ -55,9 +58,10 @@ Score = log₁₀( (Mass × Velocity) / Distance² + 1 )
 | Framework | Next.js 15 (App Router) |
 | Styling | Tailwind CSS v3 |
 | Charts | Recharts |
+| 3D Globe | react-globe.gl + THREE.js |
 | Icons | Lucide React |
 | Font | Geist (by Vercel) |
-| Data | NASA CAD API + NASA Sentry API |
+| Data | NASA CAD API, NASA Sentry API, JPL SBDB |
 | Hosting | Vercel |
 
 ---
@@ -89,6 +93,7 @@ No API key required — NASA's SSD APIs are free and public.
 
 - [NASA Small-Body Close Approach Data (CAD)](https://ssd-api.jpl.nasa.gov/doc/cad.html)
 - [NASA Sentry Impact Risk System](https://ssd-api.jpl.nasa.gov/doc/sentry.html)
+- [JPL Small-Body Database (SBDB)](https://ssd-api.jpl.nasa.gov/doc/sbdb.html) — Keplerian orbital elements for orbit ring visualization
 
 ---
 
