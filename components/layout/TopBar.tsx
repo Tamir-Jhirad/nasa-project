@@ -10,8 +10,12 @@ interface Props {
 
 export function TopBar({ objects, revalidatedAt }: Props) {
   const criticalCount = objects.filter(o => o.riskCategory === "Critical").length;
-  const nearest = objects.reduce((min, o) => o.distAu < min.distAu ? o : min, objects[0]);
-  const fastest = objects.reduce((max, o) => o.velocityKmS > max.velocityKmS ? o : max, objects[0]);
+  const nearest = objects.length
+    ? objects.reduce((min, o) => o.distAu < min.distAu ? o : min)
+    : null;
+  const fastest = objects.length
+    ? objects.reduce((max, o) => o.velocityKmS > max.velocityKmS ? o : max)
+    : null;
 
   return (
     <header className="border-b border-space-600 bg-space-900">

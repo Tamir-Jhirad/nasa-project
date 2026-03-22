@@ -1,5 +1,5 @@
-// components/layout/Sidebar.tsx
 "use client";
+// components/layout/Sidebar.tsx
 
 import type { RiskCategory } from "@/lib/nasa/types";
 import { Filter } from "lucide-react";
