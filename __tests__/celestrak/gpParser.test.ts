@@ -69,3 +69,31 @@ describe("parseGpResponse", () => {
     expect(result[0].perigeeKm).toBeLessThan(460);
   });
 });
+
+describe("parseGpResponse — HTML error page input", () => {
+  it("returns empty array for a CelesTrak HTML error page", () => {
+    // CelesTrak sometimes returns HTML for rate-limited/blocked requests.
+    // This ensures the parser doesn't produce satellite objects from HTML content.
+    const htmlErrorPage = `<!DOCTYPE html>
+<html lang="en">
+<head><title>CelesTrak Error</title></head>
+<body>
+  <h1>Service Temporarily Unavailable</h1>
+  <p>Please try again later. Reference: 1 2 3.</p>
+</body>
+</html>`;
+
+    const result = parseGpResponse(htmlErrorPage);
+    expect(result).toHaveLength(0);
+  });
+
+  it("returns empty array for an empty string", () => {
+    expect(parseGpResponse("")).toHaveLength(0);
+  });
+
+  it("returns empty array for a plain text error message", () => {
+    // CelesTrak may return plain-text errors too
+    const plainError = "Error: Too many requests. Please slow down.";
+    expect(parseGpResponse(plainError)).toHaveLength(0);
+  });
+});

@@ -36,7 +36,12 @@ export const revalidate = 3600; // 1 hour
 /** Returns true when the string looks like an HTML document (error page). */
 function isLikelyHtml(text: string): boolean {
   const head = text.trimStart().substring(0, 100).toLowerCase();
-  return head.startsWith("<!doctype") || head.startsWith("<html") || head.startsWith("<head");
+  return (
+    head.startsWith("<!doctype") ||
+    head.startsWith("<html") ||
+    head.startsWith("<head") ||
+    head.startsWith("<body")
+  );
 }
 
 /** Fetches a single CelesTrak TLE URL with the given timeout. Returns the raw text or null. */
