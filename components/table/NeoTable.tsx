@@ -23,13 +23,18 @@ export function NeoTable({ objects }: Props) {
   const sorted = [...objects].sort((a, b) => {
     const va = a[sortKey];
     const vb = b[sortKey];
-    const cmp = typeof va === "string" ? va.localeCompare(vb as string) : (va as number) - (vb as number);
+    const cmp = sortKey === "closeApproachDate"
+      ? new Date(va as string).getTime() - new Date(vb as string).getTime()
+      : typeof va === "string" ? va.localeCompare(vb as string) : (va as number) - (vb as number);
     return sortDir === "asc" ? cmp : -cmp;
   });
 
   const Th = ({ label, sk }: { label: string; sk: SortKey }) => (
     <th
       onClick={() => handleSort(sk)}
+      onKeyDown={e => (e.key === "Enter" || e.key === " ") && handleSort(sk)}
+      tabIndex={0}
+      aria-sort={sortKey === sk ? (sortDir === "asc" ? "ascending" : "descending") : "none"}
       className="px-3 py-2 text-left text-xs font-mono text-slate-400 uppercase tracking-wider cursor-pointer hover:text-neo-accent select-none whitespace-nowrap"
     >
       <span className="inline-flex items-center gap-1">
