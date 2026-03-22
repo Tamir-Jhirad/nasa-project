@@ -41,3 +41,12 @@ export interface SentryResponse {
   revalidatedAt: string;
   objects: SentryObject[];
 }
+
+/** Keplerian orbital elements from JPL SBDB */
+export interface OrbitalElements {
+  a: number;   // semi-major axis (AU)
+  e: number;   // eccentricity
+  i: number;   // inclination (degrees)
+  om: number;  // longitude of ascending node (degrees)
+  w: number;   // argument of perihelion (degrees)
+}
