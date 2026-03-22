@@ -2,6 +2,7 @@
 "use client";
 
 import { useState } from "react";
+import type { ReactNode } from "react";
 import { ChevronDown, ChevronUp, AlertTriangle, Eye, ShieldCheck } from "lucide-react";
 
 export function HeroIntro() {
@@ -25,6 +26,7 @@ export function HeroIntro() {
           onClick={() => setExpanded(v => !v)}
           className="flex items-center gap-1.5 text-xs text-slate-500 hover:text-slate-300 transition-colors shrink-0 mt-1"
           aria-expanded={expanded}
+          aria-controls="hero-explainer"
         >
           {expanded ? (
             <><ChevronUp size={14} /> Less info</>
@@ -61,7 +63,7 @@ export function HeroIntro() {
 
       {/* Expandable explainer */}
       {expanded && (
-        <div className="mt-4 pt-4 border-t border-space-700 grid sm:grid-cols-3 gap-4 text-xs text-slate-400">
+        <div id="hero-explainer" className="mt-4 pt-4 border-t border-space-700 grid sm:grid-cols-3 gap-4 text-xs text-slate-400">
           <div>
             <p className="text-slate-300 font-medium mb-1">What is an NEO?</p>
             <p>
@@ -92,7 +94,7 @@ export function HeroIntro() {
 }
 
 interface PillProps {
-  icon: React.ReactNode;
+  icon: ReactNode;
   label: string;
   desc: string;
   color: string;
