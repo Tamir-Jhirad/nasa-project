@@ -1,0 +1,734 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>NEO-Guardian Mockup</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;600;700&family=Inter:wght@400;500;600&display=swap');
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg-950: #030712;
+    --bg-900: #0a0f1e;
+    --bg-800: #0f172a;
+    --bg-700: #1e293b;
+    --bg-600: #334155;
+    --text-100: #f1f5f9;
+    --text-300: #cbd5e1;
+    --text-400: #94a3b8;
+    --text-500: #64748b;
+    --accent: #38bdf8;
+    --safe: #22c55e;
+    --watchlist: #f59e0b;
+    --critical: #ef4444;
+  }
+
+  body {
+    background: var(--bg-950);
+    color: var(--text-300);
+    font-family: 'Inter', sans-serif;
+    font-size: 13px;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .mono { font-family: 'JetBrains Mono', monospace; }
+
+  /* ── HEADER ── */
+  .header {
+    background: var(--bg-900);
+    border-bottom: 1px solid var(--bg-700);
+    flex-shrink: 0;
+  }
+  .header-title-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px 20px;
+    border-bottom: 1px solid var(--bg-700);
+  }
+  .logo {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .logo-icon {
+    width: 28px; height: 28px;
+    background: var(--accent);
+    mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2'%3E%3Cpath d='M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z'/%3E%3C/svg%3E") center/contain no-repeat;
+    -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2'%3E%3Cpath d='M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z'/%3E%3C/svg%3E") center/contain no-repeat;
+    flex-shrink: 0;
+  }
+  .logo-text {
+    font-family: 'JetBrains Mono', monospace;
+    font-weight: 700;
+    font-size: 15px;
+    letter-spacing: 0.18em;
+    color: var(--accent);
+    text-transform: uppercase;
+  }
+  .logo-sub {
+    font-size: 11px;
+    color: var(--text-500);
+    font-family: 'JetBrains Mono', monospace;
+    margin-left: 4px;
+  }
+  .header-meta {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    color: var(--text-500);
+  }
+  .dot { width: 6px; height: 6px; border-radius: 50%; background: var(--safe); animation: pulse 2s infinite; }
+  @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.4} }
+
+  .stat-row {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 0;
+  }
+  .stat-card {
+    padding: 14px 20px;
+    border-right: 1px solid var(--bg-700);
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+  }
+  .stat-card:last-child { border-right: none; }
+  .stat-icon {
+    width: 18px; height: 18px; flex-shrink: 0; margin-top: 2px;
+    opacity: 0.85;
+  }
+  .stat-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--text-500);
+    margin-bottom: 4px;
+  }
+  .stat-value {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 22px;
+    font-weight: 700;
+    color: var(--text-100);
+    line-height: 1;
+  }
+  .stat-sub {
+    font-size: 10px;
+    color: var(--text-500);
+    margin-top: 3px;
+  }
+
+  /* ── BODY ── */
+  .body {
+    display: flex;
+    flex: 1;
+    overflow: hidden;
+    min-height: 0;
+  }
+
+  /* ── SIDEBAR ── */
+  .sidebar {
+    width: 200px;
+    flex-shrink: 0;
+    background: var(--bg-900);
+    border-right: 1px solid var(--bg-700);
+    padding: 16px 14px;
+    overflow-y: auto;
+  }
+  .sidebar-header {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 18px;
+  }
+  .filter-group { margin-bottom: 18px; }
+  .filter-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--text-500);
+    margin-bottom: 8px;
+  }
+  .filter-select {
+    width: 100%;
+    background: var(--bg-800);
+    border: 1px solid var(--bg-600);
+    border-radius: 5px;
+    padding: 6px 8px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: var(--text-300);
+    appearance: none;
+  }
+  .filter-checkbox {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 7px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: var(--text-300);
+    cursor: default;
+  }
+  .cb {
+    width: 14px; height: 14px;
+    border-radius: 3px;
+    border: 1px solid var(--bg-600);
+    background: var(--bg-800);
+    flex-shrink: 0;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .cb.checked { background: var(--accent); border-color: var(--accent); }
+  .cb.checked::after { content: '✓'; font-size: 9px; color: var(--bg-950); font-weight: bold; }
+  .cb-dot { width: 8px; height: 8px; border-radius: 50%; }
+
+  .sidebar-divider {
+    border: none;
+    border-top: 1px solid var(--bg-700);
+    margin: 16px 0;
+  }
+
+  .filter-range-label {
+    display: flex;
+    justify-content: space-between;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    color: var(--text-400);
+    margin-bottom: 6px;
+  }
+  .filter-range {
+    width: 100%;
+    accent-color: var(--accent);
+    cursor: default;
+  }
+
+  /* ── MAIN ── */
+  .main {
+    flex: 1;
+    overflow-y: auto;
+    padding: 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    min-width: 0;
+  }
+
+  .chart-row {
+    display: grid;
+    grid-template-columns: 2fr 1fr;
+    gap: 14px;
+  }
+
+  .panel {
+    background: var(--bg-800);
+    border: 1px solid var(--bg-700);
+    border-radius: 8px;
+    padding: 14px;
+  }
+  .panel-title {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--text-500);
+    margin-bottom: 12px;
+  }
+
+  /* SVG Charts */
+  svg { display: block; }
+
+  /* ── TABLE ── */
+  .table-section-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--text-500);
+    margin-bottom: 8px;
+  }
+  .table-wrapper {
+    background: var(--bg-800);
+    border: 1px solid var(--bg-700);
+    border-radius: 8px;
+    overflow: hidden;
+  }
+  table { width: 100%; border-collapse: collapse; }
+  thead { background: var(--bg-700); }
+  thead th {
+    padding: 8px 12px;
+    text-align: left;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--text-500);
+    font-weight: 500;
+    white-space: nowrap;
+    cursor: default;
+  }
+  thead th:hover { color: var(--accent); }
+  thead th .sort-arrow { opacity: 0.5; margin-left: 4px; font-size: 8px; }
+  thead th.active { color: var(--accent); }
+  thead th.active .sort-arrow { opacity: 1; }
+  tbody tr { border-bottom: 1px solid var(--bg-700); transition: background 0.1s; }
+  tbody tr:last-child { border-bottom: none; }
+  tbody tr:hover { background: rgba(56,189,248,.05); }
+  tbody td {
+    padding: 8px 12px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: var(--text-400);
+    white-space: nowrap;
+  }
+  .td-name { color: var(--accent); }
+
+  .badge {
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: 999px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 9px;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+  }
+  .badge-safe      { background: rgba(34,197,94,.1);  color: var(--safe);      border: 1px solid rgba(34,197,94,.3); }
+  .badge-watchlist { background: rgba(245,158,11,.1); color: var(--watchlist); border: 1px solid rgba(245,158,11,.3); }
+  .badge-critical  { background: rgba(239,68,68,.1);  color: var(--critical);  border: 1px solid rgba(239,68,68,.3); }
+
+  /* ── METHODOLOGY ── */
+  .method-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+  .formula-box {
+    background: var(--bg-900);
+    border: 1px solid var(--bg-600);
+    border-radius: 5px;
+    padding: 10px 12px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: var(--accent);
+    margin: 8px 0;
+  }
+  .method-list { list-style: none; }
+  .method-list li {
+    font-size: 11px;
+    color: var(--text-500);
+    padding: 2px 0;
+    font-family: 'JetBrains Mono', monospace;
+  }
+  .method-list li span { color: var(--text-300); }
+  .category-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; margin-top: 8px; }
+  .cat-box { border-radius: 6px; padding: 10px; }
+  .cat-safe      { background: rgba(34,197,94,.06);  border: 1px solid rgba(34,197,94,.2); }
+  .cat-watchlist { background: rgba(245,158,11,.06); border: 1px solid rgba(245,158,11,.2); }
+  .cat-critical  { background: rgba(239,68,68,.06);  border: 1px solid rgba(239,68,68,.2); }
+  .cat-name {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 9px;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    margin-bottom: 4px;
+  }
+  .cat-safe .cat-name      { color: var(--safe); }
+  .cat-watchlist .cat-name { color: var(--watchlist); }
+  .cat-critical .cat-name  { color: var(--critical); }
+  .cat-desc { font-size: 10px; color: var(--text-500); font-family: 'JetBrains Mono', monospace; }
+
+  .method-footer {
+    margin-top: 12px;
+    padding-top: 10px;
+    border-top: 1px solid var(--bg-700);
+    font-size: 10px;
+    color: var(--text-500);
+    font-family: 'JetBrains Mono', monospace;
+  }
+  .method-footer a { color: var(--accent); }
+
+  /* ── SCROLLBAR ── */
+  ::-webkit-scrollbar { width: 5px; height: 5px; }
+  ::-webkit-scrollbar-track { background: var(--bg-800); }
+  ::-webkit-scrollbar-thumb { background: var(--bg-600); border-radius: 3px; }
+  ::-webkit-scrollbar-thumb:hover { background: var(--accent); }
+</style>
+</head>
+<body>
+
+<!-- ══ HEADER ══ -->
+<header class="header">
+  <div class="header-title-row">
+    <div class="logo">
+      <div class="logo-icon"></div>
+      <span class="logo-text">NEO-Guardian</span>
+      <span class="logo-sub">Real-time Asteroid Proximity &amp; Risk Dashboard</span>
+    </div>
+    <div class="header-meta">
+      <div class="dot"></div>
+      <span>ISR · Updated 14 Mar 2026, 00:00 UTC · Revalidates in 11h 47m</span>
+    </div>
+  </div>
+  <div class="stat-row">
+    <!-- Stat 1 -->
+    <div class="stat-card">
+      <svg class="stat-icon" viewBox="0 0 24 24" fill="none" stroke="#38bdf8" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+      <div>
+        <div class="stat-label">Objects Tracked</div>
+        <div class="stat-value">512</div>
+        <div class="stat-sub">Next 6 months · ≤ 0.05 AU</div>
+      </div>
+    </div>
+    <!-- Stat 2 -->
+    <div class="stat-card">
+      <svg class="stat-icon" viewBox="0 0 24 24" fill="none" stroke="#ef4444" stroke-width="2"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+      <div>
+        <div class="stat-label">Critical Risk</div>
+        <div class="stat-value" style="color:#ef4444">7</div>
+        <div class="stat-sub" style="color:#f59e0b">23 on watchlist</div>
+      </div>
+    </div>
+    <!-- Stat 3 -->
+    <div class="stat-card">
+      <svg class="stat-icon" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+      <div>
+        <div class="stat-label">Nearest Approach</div>
+        <div class="stat-value" style="color:#f59e0b">0.0082 AU</div>
+        <div class="stat-sub">(2024 YR4) · Apr 3, 2026</div>
+      </div>
+    </div>
+  </div>
+</header>
+
+<!-- ══ BODY ══ -->
+<div class="body">
+
+  <!-- ── SIDEBAR ── -->
+  <aside class="sidebar">
+    <div class="sidebar-header">
+      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/></svg>
+      Filters
+    </div>
+
+    <div class="filter-group">
+      <div class="filter-label">Min Diameter</div>
+      <select class="filter-select">
+        <option>All sizes</option>
+        <option>> 10 m</option>
+        <option selected>> 50 m</option>
+        <option>> 100 m</option>
+        <option>> 500 m</option>
+        <option>> 1 km</option>
+      </select>
+    </div>
+
+    <div class="filter-group">
+      <div class="filter-label">Risk Category</div>
+      <div class="filter-checkbox">
+        <div class="cb checked"></div>
+        <div class="cb-dot" style="background:var(--safe);width:7px;height:7px;border-radius:50%;"></div>
+        Safe
+      </div>
+      <div class="filter-checkbox">
+        <div class="cb checked"></div>
+        <div class="cb-dot" style="background:var(--watchlist);width:7px;height:7px;border-radius:50%;"></div>
+        Watchlist
+      </div>
+      <div class="filter-checkbox">
+        <div class="cb checked"></div>
+        <div class="cb-dot" style="background:var(--critical);width:7px;height:7px;border-radius:50%;"></div>
+        Critical
+      </div>
+    </div>
+
+    <hr class="sidebar-divider">
+
+    <div class="filter-group">
+      <div class="filter-label">Date Range</div>
+      <div class="filter-range-label"><span>Now</span><span>+6 mo</span></div>
+      <input type="range" class="filter-range" min="0" max="100" value="100">
+    </div>
+
+    <hr class="sidebar-divider">
+
+    <div style="font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--text-500);">
+      <div style="margin-bottom:6px;">Data source</div>
+      <div style="color:var(--accent);margin-bottom:3px;">NASA SSD CAD API</div>
+      <div style="color:var(--accent);">NASA Sentry API</div>
+    </div>
+  </aside>
+
+  <!-- ── MAIN ── -->
+  <main class="main">
+
+    <!-- Row 1: Timeline + Size Distribution -->
+    <div class="chart-row">
+      <div class="panel">
+        <div class="panel-title">Close Approaches per Week</div>
+        <svg width="100%" height="160" viewBox="0 0 500 160" preserveAspectRatio="xMidYMid meet">
+          <!-- Grid lines -->
+          <line x1="40" y1="10" x2="490" y2="10" stroke="#1e293b" stroke-width="1"/>
+          <line x1="40" y1="37" x2="490" y2="37" stroke="#1e293b" stroke-width="1"/>
+          <line x1="40" y1="64" x2="490" y2="64" stroke="#1e293b" stroke-width="1"/>
+          <line x1="40" y1="91" x2="490" y2="91" stroke="#1e293b" stroke-width="1"/>
+          <line x1="40" y1="118" x2="490" y2="118" stroke="#1e293b" stroke-width="1"/>
+          <line x1="40" y1="145" x2="490" y2="145" stroke="#334155" stroke-width="1"/>
+          <!-- Y axis labels -->
+          <text x="34" y="14" text-anchor="end" fill="#64748b" font-size="9" font-family="JetBrains Mono,monospace">40</text>
+          <text x="34" y="41" text-anchor="end" fill="#64748b" font-size="9" font-family="JetBrains Mono,monospace">30</text>
+          <text x="34" y="68" text-anchor="end" fill="#64748b" font-size="9" font-family="JetBrains Mono,monospace">20</text>
+          <text x="34" y="95" text-anchor="end" fill="#64748b" font-size="9" font-family="JetBrains Mono,monospace">10</text>
+          <text x="34" y="122" text-anchor="end" fill="#64748b" font-size="9" font-family="JetBrains Mono,monospace">5</text>
+          <!-- Area fill -->
+          <defs>
+            <linearGradient id="areaGrad" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stop-color="#38bdf8" stop-opacity="0.25"/>
+              <stop offset="100%" stop-color="#38bdf8" stop-opacity="0.02"/>
+            </linearGradient>
+          </defs>
+          <polygon fill="url(#areaGrad)"
+            points="40,145 77,118 114,100 151,109 188,91 225,100 262,82 299,73 336,91 373,64 410,55 447,64 490,100 490,145"/>
+          <!-- Line -->
+          <polyline fill="none" stroke="#38bdf8" stroke-width="2" stroke-linejoin="round"
+            points="40,145 77,118 114,100 151,109 188,91 225,100 262,82 299,73 336,91 373,64 410,55 447,64 490,100"/>
+          <!-- Dots -->
+          <circle cx="373" cy="64" r="3.5" fill="#38bdf8"/>
+          <circle cx="410" cy="55" r="3.5" fill="#38bdf8"/>
+          <!-- X axis labels -->
+          <text x="40"  y="158" text-anchor="middle" fill="#64748b" font-size="8.5" font-family="JetBrains Mono,monospace">Mar 22</text>
+          <text x="114" y="158" text-anchor="middle" fill="#64748b" font-size="8.5" font-family="JetBrains Mono,monospace">Apr 5</text>
+          <text x="188" y="158" text-anchor="middle" fill="#64748b" font-size="8.5" font-family="JetBrains Mono,monospace">Apr 19</text>
+          <text x="262" y="158" text-anchor="middle" fill="#64748b" font-size="8.5" font-family="JetBrains Mono,monospace">May 3</text>
+          <text x="336" y="158" text-anchor="middle" fill="#64748b" font-size="8.5" font-family="JetBrains Mono,monospace">May 17</text>
+          <text x="410" y="158" text-anchor="middle" fill="#64748b" font-size="8.5" font-family="JetBrains Mono,monospace">May 31</text>
+        </svg>
+      </div>
+
+      <div class="panel">
+        <div class="panel-title">Object Size Distribution</div>
+        <svg width="100%" height="160" viewBox="0 0 220 160" preserveAspectRatio="xMidYMid meet">
+          <!-- Grid -->
+          <line x1="32" y1="10" x2="215" y2="10" stroke="#1e293b" stroke-width="1"/>
+          <line x1="32" y1="40" x2="215" y2="40" stroke="#1e293b" stroke-width="1"/>
+          <line x1="32" y1="70" x2="215" y2="70" stroke="#1e293b" stroke-width="1"/>
+          <line x1="32" y1="100" x2="215" y2="100" stroke="#1e293b" stroke-width="1"/>
+          <line x1="32" y1="130" x2="215" y2="130" stroke="#334155" stroke-width="1"/>
+          <text x="26" y="14" text-anchor="end" fill="#64748b" font-size="8" font-family="JetBrains Mono,monospace">200</text>
+          <text x="26" y="44" text-anchor="end" fill="#64748b" font-size="8" font-family="JetBrains Mono,monospace">150</text>
+          <text x="26" y="74" text-anchor="end" fill="#64748b" font-size="8" font-family="JetBrains Mono,monospace">100</text>
+          <text x="26" y="104" text-anchor="end" fill="#64748b" font-size="8" font-family="JetBrains Mono,monospace">50</text>
+          <!-- Bars -->
+          <rect x="36" y="120" width="24" height="10" rx="2" fill="#1d4ed8" opacity="0.9"/>
+          <rect x="65" y="85"  width="24" height="45" rx="2" fill="#2563eb" opacity="0.9"/>
+          <rect x="94" y="40"  width="24" height="90" rx="2" fill="#3b82f6" opacity="0.9"/>
+          <rect x="123" y="20" width="24" height="110" rx="2" fill="#60a5fa" opacity="0.9"/>
+          <rect x="152" y="60" width="24" height="70" rx="2" fill="#93c5fd" opacity="0.9"/>
+          <rect x="181" y="105" width="24" height="25" rx="2" fill="#bfdbfe" opacity="0.9"/>
+          <!-- X labels -->
+          <text x="48"  y="148" text-anchor="middle" fill="#64748b" font-size="7" font-family="JetBrains Mono,monospace">&lt;10m</text>
+          <text x="77"  y="148" text-anchor="middle" fill="#64748b" font-size="7" font-family="JetBrains Mono,monospace">10-50</text>
+          <text x="106" y="148" text-anchor="middle" fill="#64748b" font-size="7" font-family="JetBrains Mono,monospace">50-100</text>
+          <text x="135" y="148" text-anchor="middle" fill="#64748b" font-size="7" font-family="JetBrains Mono,monospace">100-500</text>
+          <text x="164" y="148" text-anchor="middle" fill="#64748b" font-size="7" font-family="JetBrains Mono,monospace">0.5-1km</text>
+          <text x="193" y="148" text-anchor="middle" fill="#64748b" font-size="7" font-family="JetBrains Mono,monospace">&gt;1km</text>
+        </svg>
+      </div>
+    </div>
+
+    <!-- Row 2: Risk Radar -->
+    <div class="panel">
+      <div class="panel-title">Risk Radar — Velocity vs. Miss Distance (bubble size = estimated diameter)</div>
+      <svg width="100%" height="200" viewBox="0 0 700 200" preserveAspectRatio="xMidYMid meet">
+        <!-- Grid -->
+        <line x1="50" y1="10" x2="690" y2="10" stroke="#1e293b" stroke-width="1"/>
+        <line x1="50" y1="50" x2="690" y2="50" stroke="#1e293b" stroke-width="1"/>
+        <line x1="50" y1="90" x2="690" y2="90" stroke="#1e293b" stroke-width="1"/>
+        <line x1="50" y1="130" x2="690" y2="130" stroke="#1e293b" stroke-width="1"/>
+        <line x1="50" y1="170" x2="690" y2="170" stroke="#334155" stroke-width="1"/>
+        <!-- Y axis -->
+        <text x="44" y="14"  text-anchor="end" fill="#64748b" font-size="8.5" font-family="JetBrains Mono,monospace">35</text>
+        <text x="44" y="54"  text-anchor="end" fill="#64748b" font-size="8.5" font-family="JetBrains Mono,monospace">25</text>
+        <text x="44" y="94"  text-anchor="end" fill="#64748b" font-size="8.5" font-family="JetBrains Mono,monospace">15</text>
+        <text x="44" y="134" text-anchor="end" fill="#64748b" font-size="8.5" font-family="JetBrains Mono,monospace">10</text>
+        <text x="44" y="174" text-anchor="end" fill="#64748b" font-size="8.5" font-family="JetBrains Mono,monospace">5</text>
+        <!-- X axis labels -->
+        <text x="50"  y="188" text-anchor="middle" fill="#64748b" font-size="8.5" font-family="JetBrains Mono,monospace">0.001</text>
+        <text x="178" y="188" text-anchor="middle" fill="#64748b" font-size="8.5" font-family="JetBrains Mono,monospace">0.01</text>
+        <text x="306" y="188" text-anchor="middle" fill="#64748b" font-size="8.5" font-family="JetBrains Mono,monospace">0.02</text>
+        <text x="434" y="188" text-anchor="middle" fill="#64748b" font-size="8.5" font-family="JetBrains Mono,monospace">0.03</text>
+        <text x="562" y="188" text-anchor="middle" fill="#64748b" font-size="8.5" font-family="JetBrains Mono,monospace">0.04</text>
+        <text x="690" y="188" text-anchor="middle" fill="#64748b" font-size="8.5" font-family="JetBrains Mono,monospace">0.05 AU</text>
+        <!-- SAFE dots (green, many, small-medium) -->
+        <circle cx="560" cy="140" r="5"  fill="#22c55e" opacity="0.65"/>
+        <circle cx="610" cy="155" r="4"  fill="#22c55e" opacity="0.65"/>
+        <circle cx="640" cy="130" r="6"  fill="#22c55e" opacity="0.65"/>
+        <circle cx="580" cy="115" r="4"  fill="#22c55e" opacity="0.65"/>
+        <circle cx="660" cy="160" r="5"  fill="#22c55e" opacity="0.65"/>
+        <circle cx="530" cy="150" r="7"  fill="#22c55e" opacity="0.65"/>
+        <circle cx="480" cy="135" r="4"  fill="#22c55e" opacity="0.65"/>
+        <circle cx="620" cy="110" r="5"  fill="#22c55e" opacity="0.65"/>
+        <circle cx="590" cy="165" r="3"  fill="#22c55e" opacity="0.65"/>
+        <circle cx="510" cy="120" r="6"  fill="#22c55e" opacity="0.65"/>
+        <circle cx="670" cy="140" r="4"  fill="#22c55e" opacity="0.65"/>
+        <!-- WATCHLIST dots (amber, medium) -->
+        <circle cx="300" cy="80"  r="9"  fill="#f59e0b" opacity="0.75"/>
+        <circle cx="360" cy="100" r="7"  fill="#f59e0b" opacity="0.75"/>
+        <circle cx="240" cy="110" r="8"  fill="#f59e0b" opacity="0.75"/>
+        <circle cx="420" cy="75"  r="6"  fill="#f59e0b" opacity="0.75"/>
+        <circle cx="280" cy="130" r="10" fill="#f59e0b" opacity="0.75"/>
+        <circle cx="380" cy="55"  r="7"  fill="#f59e0b" opacity="0.75"/>
+        <circle cx="200" cy="95"  r="8"  fill="#f59e0b" opacity="0.75"/>
+        <!-- CRITICAL dots (red, larger, fewer, close/fast) -->
+        <circle cx="80"  cy="30"  r="18" fill="#ef4444" opacity="0.8"/>
+        <circle cx="140" cy="45"  r="12" fill="#ef4444" opacity="0.8"/>
+        <circle cx="110" cy="70"  r="14" fill="#ef4444" opacity="0.8"/>
+        <circle cx="60"  cy="60"  r="10" fill="#ef4444" opacity="0.8"/>
+        <circle cx="170" cy="25"  r="8"  fill="#ef4444" opacity="0.8"/>
+        <!-- Axis labels -->
+        <text x="370" y="198" text-anchor="middle" fill="#64748b" font-size="9" font-family="JetBrains Mono,monospace">Miss Distance (AU) →</text>
+        <text x="16" y="100" text-anchor="middle" fill="#64748b" font-size="9" font-family="JetBrains Mono,monospace" transform="rotate(-90,16,100)">Velocity (km/s) ↑</text>
+        <!-- Legend -->
+        <circle cx="560" cy="15" r="5" fill="#22c55e" opacity="0.75"/>
+        <text x="570" y="19" fill="#94a3b8" font-size="9" font-family="JetBrains Mono,monospace">Safe</text>
+        <circle cx="600" cy="15" r="5" fill="#f59e0b" opacity="0.75"/>
+        <text x="610" y="19" fill="#94a3b8" font-size="9" font-family="JetBrains Mono,monospace">Watchlist</text>
+        <circle cx="657" cy="15" r="5" fill="#ef4444" opacity="0.75"/>
+        <text x="667" y="19" fill="#94a3b8" font-size="9" font-family="JetBrains Mono,monospace">Critical</text>
+      </svg>
+    </div>
+
+    <!-- Row 3: Table -->
+    <div>
+      <div class="table-section-label">All Tracked Objects (512) — sorted by Risk Score ↓</div>
+      <div class="table-wrapper">
+        <table>
+          <thead>
+            <tr>
+              <th>Object</th>
+              <th>Close Approach <span class="sort-arrow">↕</span></th>
+              <th>Miss Dist (AU) <span class="sort-arrow">↕</span></th>
+              <th>Velocity (km/s) <span class="sort-arrow">↕</span></th>
+              <th>Diameter <span class="sort-arrow">↕</span></th>
+              <th class="active">Risk Score <span class="sort-arrow">↓</span></th>
+              <th>Category</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td class="td-name">(2024 YR4)</td>
+              <td>Apr 3, 2026</td>
+              <td>0.00820</td>
+              <td>31.4</td>
+              <td>~57 m</td>
+              <td>4.18</td>
+              <td><span class="badge badge-critical">Critical</span></td>
+            </tr>
+            <tr>
+              <td class="td-name">(2019 OK)</td>
+              <td>Apr 18, 2026</td>
+              <td>0.01140</td>
+              <td>24.5</td>
+              <td>~95 m</td>
+              <td>3.72</td>
+              <td><span class="badge badge-critical">Critical</span></td>
+            </tr>
+            <tr>
+              <td class="td-name">(2015 FS33)</td>
+              <td>Apr 12, 2026</td>
+              <td>0.03750</td>
+              <td>20.7</td>
+              <td>66 m</td>
+              <td>3.11</td>
+              <td><span class="badge badge-critical">Critical</span></td>
+            </tr>
+            <tr>
+              <td class="td-name">(2020 NK1)</td>
+              <td>May 7, 2026</td>
+              <td>0.02310</td>
+              <td>18.3</td>
+              <td>~41 m</td>
+              <td>2.88</td>
+              <td><span class="badge badge-watchlist">Watchlist</span></td>
+            </tr>
+            <tr>
+              <td class="td-name">(2021 PQ4)</td>
+              <td>May 22, 2026</td>
+              <td>0.04120</td>
+              <td>15.6</td>
+              <td>~88 m</td>
+              <td>2.44</td>
+              <td><span class="badge badge-watchlist">Watchlist</span></td>
+            </tr>
+            <tr>
+              <td class="td-name">(2025 YL4)</td>
+              <td>Jan 1, 2026</td>
+              <td>0.04000</td>
+              <td>15.5</td>
+              <td>~22 m</td>
+              <td>1.12</td>
+              <td><span class="badge badge-safe">Safe</span></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Row 4: Methodology -->
+    <div class="panel">
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:14px;">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#38bdf8" stroke-width="2"><path d="M9 3H5a2 2 0 00-2 2v4m6-6h10a2 2 0 012 2v4M9 3v18m0 0h10a2 2 0 002-2V9M9 21H5a2 2 0 01-2-2V9m0 0h18"/></svg>
+        <span class="mono" style="font-size:9px;letter-spacing:.15em;text-transform:uppercase;color:var(--accent)">Data Science Methodology</span>
+      </div>
+      <div class="method-grid">
+        <div>
+          <div class="filter-label" style="margin-bottom:6px;">Impact Hazard Score</div>
+          <div class="formula-box">Score = log₁₀( (Mass × Velocity) / Distance² + 1 )</div>
+          <ul class="method-list">
+            <li><span>Mass</span> — spherical body, ρ = 2,000 kg/m³</li>
+            <li><span>Velocity</span> — relative velocity at approach (m/s)</li>
+            <li><span>Distance</span> — nominal miss distance (m)</li>
+            <li><span>log₁₀</span> — prevents extreme values dominating</li>
+          </ul>
+        </div>
+        <div>
+          <div class="filter-label" style="margin-bottom:6px;">Diameter Estimation</div>
+          <div class="formula-box">D = (1329 / √p) × 10^(−H/5)  [km]</div>
+          <ul class="method-list">
+            <li><span>H</span> — absolute magnitude (NASA catalog)</li>
+            <li><span>p = 0.14</span> — assumed geometric albedo</li>
+            <li>Used for ~99% of objects (NASA omits diameter)</li>
+          </ul>
+        </div>
+      </div>
+      <div class="category-grid" style="margin-top:14px;">
+        <div class="cat-box cat-safe">
+          <div class="cat-name">Safe</div>
+          <div class="cat-desc">Score &lt; 1.5<br>Low energy or large miss dist.</div>
+        </div>
+        <div class="cat-box cat-watchlist">
+          <div class="cat-name">Watchlist</div>
+          <div class="cat-desc">Score 1.5–3.0<br>Notable size + speed + proximity</div>
+        </div>
+        <div class="cat-box cat-critical">
+          <div class="cat-name">Critical</div>
+          <div class="cat-desc">Score ≥ 3.0<br>High kinetic impact potential</div>
+        </div>
+      </div>
+      <div class="method-footer">⚠ Portfolio demonstration only — not an official NASA risk assessment. For authoritative data: <a href="#">NASA Sentry</a></div>
+    </div>
+
+  </main>
+</div>
+
+</body>
+</html>

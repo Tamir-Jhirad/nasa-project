@@ -1,0 +1,28 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(curl -s \"https://ssd-api.jpl.nasa.gov/cad.api?date-min=2026-01-01&date-max=2026-04-01&dist-max=0.05&diameter=true&fullname=true\")",
+      "Bash(curl -s \"https://ssd-api.jpl.nasa.gov/sentry.api?limit=10\")",
+      "Bash(curl -s \"https://ssd-api.jpl.nasa.gov/sentry.api\")",
+      "Bash(bash \"/c/Users/SwankyDwarf/.claude/plugins/cache/claude-plugins-official/superpowers/5.0.5/skills/brainstorming/scripts/start-server.sh\" --project-dir \"C:/Users/SwankyDwarf/OneDrive/Desktop/Claude_Projects/nasa-project\")",
+      "Bash(npx create-next-app@latest . --typescript --tailwind --app --no-src-dir --import-alias \"@/*\" --no-eslint)",
+      "Bash(npm install:*)",
+      "Bash(npx jest:*)",
+      "Bash(node -e \"const p = require\\(''./node_modules/ts-jest/package.json''\\); console.log\\(p.version\\); console.log\\(JSON.stringify\\(p.peerDependencies\\)\\)\")",
+      "Bash(npm uninstall:*)",
+      "Bash(git commit:*)",
+      "Bash(ls -la jest* package.json)",
+      "Bash(npm list:*)",
+      "Bash(npm test:*)",
+      "Bash(npm cache:*)",
+      "Bash(npm ci:*)",
+      "Bash(git add:*)",
+      "Bash(npx tsc:*)",
+      "Bash(netstat -ano)",
+      "Bash(agent-browser open:*)",
+      "Bash(agent-browser wait:*)",
+      "Bash(agent-browser screenshot:*)",
+      "Bash(kill 1375)"
+    ]
+  }
+}

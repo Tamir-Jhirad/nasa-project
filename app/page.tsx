@@ -1,13 +1,6 @@
-import dynamic from "next/dynamic";
 import { TopBar } from "@/components/layout/TopBar";
+import { DashboardClientWrapper } from "@/components/layout/DashboardClientWrapper";
 import type { CloseApproachesResponse } from "@/lib/nasa/types";
-
-// DashboardClient manages all client-side state (filters). Charts live inside it.
-// It is loaded with ssr:false because Recharts requires a browser environment.
-const DashboardClient = dynamic(
-  () => import("@/components/layout/DashboardClient").then(m => m.DashboardClient),
-  { ssr: false }
-);
 
 // ISR: revalidate every 12 hours
 export const revalidate = 43200;
@@ -29,7 +22,7 @@ export default async function HomePage() {
   return (
     <div className="min-h-screen flex flex-col">
       <TopBar objects={data.objects} revalidatedAt={data.revalidatedAt} />
-      <DashboardClient initialObjects={data.objects} />
+      <DashboardClientWrapper initialObjects={data.objects} />
     </div>
   );
 }
