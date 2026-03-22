@@ -13,9 +13,6 @@ export function TopBar({ objects, revalidatedAt }: Props) {
   const nearest = objects.length
     ? objects.reduce((min, o) => o.distAu < min.distAu ? o : min)
     : null;
-  const fastest = objects.length
-    ? objects.reduce((max, o) => o.velocityKmS > max.velocityKmS ? o : max)
-    : null;
 
   return (
     <header className="border-b border-space-600 bg-space-900">
@@ -31,9 +28,6 @@ export function TopBar({ objects, revalidatedAt }: Props) {
           <p className="text-xs text-slate-500 mt-0.5 hidden sm:block">
             Live NASA data · Near-Earth asteroid tracker · Updates every 12 hours
           </p>
-          <span className="hidden sm:inline text-xs text-slate-500 font-mono truncate">
-            Real-time Asteroid Proximity &amp; Risk Dashboard
-          </span>
         </div>
         <div className="hidden sm:flex items-center gap-2 text-xs font-mono text-slate-500 shrink-0">
           <Clock size={12} />
