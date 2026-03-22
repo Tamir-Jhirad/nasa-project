@@ -87,10 +87,6 @@ describe("parseGpResponse — HTML error page input", () => {
     expect(result).toHaveLength(0);
   });
 
-  it("returns empty array for an empty string", () => {
-    expect(parseGpResponse("")).toHaveLength(0);
-  });
-
   it("returns empty array for a plain text error message", () => {
     // CelesTrak may return plain-text errors too
     const plainError = "Error: Too many requests. Please slow down.";

@@ -31,6 +31,9 @@ const FALLBACK_TIMEOUT_MS = 15_000;  // 15 s per group
 
 // Node.js runtime (NOT edge) — response can be 3–4 MB
 export const runtime = "nodejs";
+// ISR caches the route response for 1 hour. The inner fetch() uses cache:"no-store"
+// to prevent Next.js from separately caching a stale CelesTrak error response — these
+// two settings operate at different layers and are intentionally complementary.
 export const revalidate = 3600; // 1 hour
 
 /** Returns true when the string looks like an HTML document (error page). */
