@@ -88,7 +88,7 @@ export function toGlobeArcs(objects: NeoObject[], selectedDes: string | null): G
       endLng: 0,
       altitude: distToAltitude(o.distAu),
       color: hasSelection && !isSelected ? DIMMED_COLOR : RISK_COLOR[o.riskCategory],
-      label: `${o.fullname || o.des} — ${(o.distAu * 1000).toFixed(1)}k km`,
+      label: `${o.fullname || o.des} — ${(o.distKm / 1_000_000).toFixed(2)} M km`,
     };
   });
 }
