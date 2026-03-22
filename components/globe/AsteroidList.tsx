@@ -37,6 +37,8 @@ export function AsteroidList({ objects, selectedDes, onSelectDes }: Props) {
         return (
           <button
             key={o.des}
+            type="button"
+            aria-pressed={isSelected}
             onClick={() => onSelectDes(isSelected ? null : o.des)}
             className={[
               "w-full flex items-center gap-2.5 px-3 py-2 text-left transition-colors border-l-2",
