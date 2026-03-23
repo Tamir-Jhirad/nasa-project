@@ -35,7 +35,7 @@ async function fetchHemisphere(
   try {
     const res = await fetch(aboveUrl(lat, lng, apiKey), {
       signal: controller.signal,
-      cache: "no-store",
+      next: { revalidate: 3600 },
     });
     clearTimeout(timer);
     if (!res.ok) {
