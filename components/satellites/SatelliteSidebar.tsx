@@ -1,5 +1,6 @@
 "use client";
 // components/satellites/SatelliteSidebar.tsx
+import { X } from "lucide-react";
 import type { SatelliteObject, Constellation, OrbitClass } from "@/lib/celestrak/types";
 
 export interface SatelliteFilterState {
@@ -65,12 +66,23 @@ export function SatelliteSidebar({ filters, onChange, allObjects, onClose }: Pro
   const clearAll = () => onChange(DEFAULT_SATELLITE_FILTERS);
 
   return (
-    <aside className="w-52 shrink-0 bg-space-900 border-r border-space-700 flex flex-col overflow-y-auto">
+    <aside className="w-52 shrink-0 bg-space-900 border-r border-space-700 flex flex-col overflow-y-auto h-full">
       <div className="p-3 border-b border-space-700 flex items-center justify-between">
         <span className="text-xs font-mono text-slate-400 uppercase tracking-widest">Filters</span>
-        <button onClick={clearAll} className="text-xs text-slate-500 hover:text-neo-accent font-mono">
-          Clear all
-        </button>
+        <div className="flex items-center gap-2">
+          <button onClick={clearAll} className="text-xs text-slate-500 hover:text-neo-accent font-mono">
+            Clear all
+          </button>
+          {onClose && (
+            <button
+              onClick={onClose}
+              aria-label="Close filters"
+              className="p-1 rounded hover:bg-space-700 text-slate-400 hover:text-slate-200 transition-colors"
+            >
+              <X size={16} />
+            </button>
+          )}
+        </div>
       </div>
 
       {/* Search */}

@@ -1,15 +1,17 @@
 // components/satellites/SatelliteDashboardClient.tsx
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useRef, useEffect } from "react";
 import dynamic from "next/dynamic";
 import useSWR from "swr";
+import { Filter } from "lucide-react";
 import type { SatelliteObject, TleDerived } from "@/lib/celestrak/types";
 import {
   SatelliteSidebar,
   DEFAULT_SATELLITE_FILTERS,
   type SatelliteFilterState,
 } from "@/components/satellites/SatelliteSidebar";
+import { MobileDrawer } from "@/components/layout/MobileDrawer";
 import { SatelliteDetailPanel } from "@/components/satellites/SatelliteDetailPanel";
 import { OrbitClassDonut } from "@/components/satellites/OrbitClassDonut";
 import { LaunchTimeline } from "@/components/satellites/LaunchTimeline";
@@ -42,6 +44,18 @@ export function SatelliteDashboardClient({ initialObjects }: Props) {
   const [filters, setFilters] = useState<SatelliteFilterState>(DEFAULT_SATELLITE_FILTERS);
   const [selectedNoradId, setSelectedNoradId] = useState<number | null>(null);
   const [liveLatLng, setLiveLatLng] = useState<{ lat: number; lng: number } | null>(null);
+  const [sidebarOpen, setSidebarOpen] = useState(false);
+
+  // Measure the globe section container so the canvas fills it on any screen width.
+  const globeSectionRef = useRef<HTMLElement | null>(null);
+  const [globeWidth, setGlobeWidth] = useState(600);
+  useEffect(() => {
+    const el = globeSectionRef.current;
+    if (!el) return;
+    const ro = new ResizeObserver(([entry]) => setGlobeWidth(entry.contentRect.width));
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, []);
 
   // SWR fetches TLE only when a satellite is selected (null key = skip).
   // Results are cached — clicking the same satellite twice re-uses the cached TLE.
@@ -74,15 +88,42 @@ export function SatelliteDashboardClient({ initialObjects }: Props) {
 
   return (
     <div className="flex flex-1 overflow-hidden">
-      <SatelliteSidebar
-        filters={filters}
-        onChange={setFilters}
-        allObjects={initialObjects}
-      />
+      {/* Mobile drawer — portaled to document.body to escape overflow-hidden */}
+      <MobileDrawer open={sidebarOpen} onClose={() => setSidebarOpen(false)}>
+        <SatelliteSidebar
+          filters={filters}
+          onChange={setFilters}
+          allObjects={initialObjects}
+          onClose={() => setSidebarOpen(false)}
+        />
+      </MobileDrawer>
+
+      {/* Desktop sidebar — inline in flex layout, hidden on mobile */}
+      <div className="hidden md:block">
+        <SatelliteSidebar
+          filters={filters}
+          onChange={setFilters}
+          allObjects={initialObjects}
+        />
+      </div>
 
       <main className="flex-1 overflow-y-auto p-4 sm:p-6 space-y-6">
+        {/* Mobile filter button — hidden on desktop */}
+        <div className="flex items-center md:hidden">
+          <button
+            onClick={() => setSidebarOpen(true)}
+            className="flex items-center gap-2 px-3 py-1.5 rounded border border-space-600 bg-space-800 text-neo-accent font-mono text-xs uppercase tracking-widest hover:bg-space-700 transition-colors"
+          >
+            <Filter size={14} />
+            Filters
+          </button>
+          <span className="ml-3 text-xs font-mono text-slate-500">
+            {filtered.length} satellites
+          </span>
+        </div>
+
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
-          <section className="lg:col-span-2 bg-space-900 border border-space-700 rounded-xl p-4">
+          <section ref={globeSectionRef} className="lg:col-span-2 bg-space-900 border border-space-700 rounded-xl p-4">
             <h2 className="text-xs font-mono text-slate-400 uppercase tracking-widest mb-1">
               Live Orbital Positions
             </h2>
@@ -99,8 +140,8 @@ export function SatelliteDashboardClient({ initialObjects }: Props) {
                 if (id === null) setLiveLatLng(null);
               }}
               onLivePosition={(lat, lng) => setLiveLatLng({ lat, lng })}
-              width={600}
-              height={480}
+              width={globeWidth}
+              height={Math.min(Math.round(globeWidth * 0.8), 480)}
             />
           </section>
 
