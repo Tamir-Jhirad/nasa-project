@@ -1,103 +1,63 @@
 // app/api/satellites/route.ts
 import { NextResponse } from "next/server";
-import { parseGpResponse } from "@/lib/celestrak/gpParser";
-import type { SatelliteResponse, SatelliteObject } from "@/lib/celestrak/types";
-import { FALLBACK_TLE_TEXT, FALLBACK_SNAPSHOT_DATE } from "@/lib/celestrak/fallbackTles";
+import { parseAboveResponse } from "@/lib/n2yo/parser";
+import type { N2YOAboveResponse } from "@/lib/n2yo/types";
+import type { SatelliteObject, SatelliteResponse } from "@/lib/celestrak/types";
 
-// Primary URL — all active payloads (~10 000 satellites, 3–4 MB TLE text)
-const PRIMARY_URL =
-  "https://celestrak.org/NORAD/elements/gp.php?GROUP=active&FORMAT=tle";
+export const runtime = "nodejs";
+// ISR: cache the route response for 1 hour — N2YO positions are live but
+// for a dashboard census (total counts, orbit class breakdown) hourly is enough.
+export const revalidate = 3600;
 
-// Fallback groups fetched in parallel when the primary URL fails/times out.
-// Smaller payloads (30–7000 sats each) that collectively cover all constellations.
-const FALLBACK_GROUPS = [
-  "stations",   // ISS, Tiangong, crewed craft (~50)
-  "starlink",   // SpaceX Starlink (~7000, may still timeout — that's OK)
-  "oneweb",     // OneWeb constellation (~600)
-  "weather",    // NOAA, Meteosat, GOES, etc. (~80)
-  "gps-ops",    // GPS operational block (~31)
-  "glo-ops",    // GLONASS operational (~24)
-  "galileo",    // Galileo navigation (~27)
-  "science",    // Scientific/research satellites (~150)
-  "amateur",    // Amateur radio sats (~100)
+const N2YO_BASE = "https://api.n2yo.com/rest/v1/satellite";
+const CATEGORY_ALL = 0;
+const RADIUS_DEG = 90; // degrees — covers one full hemisphere per observer
+const TIMEOUT_MS = 15_000;
+
+// Two observers 180° apart → global coverage after dedup
+const OBSERVERS = [
+  { lat: 0, lng: 0 },    // Gulf of Guinea — covers Africa/Europe/Asia hemisphere
+  { lat: 0, lng: 180 },  // Pacific — covers Americas/Pacific hemisphere
 ];
 
-const FETCH_HEADERS = {
-  "User-Agent": "nasa-dashboard/1.0 (educational project)",
-  Accept: "text/plain",
-};
-
-const PRIMARY_TIMEOUT_MS = 30_000;   // 30 s — plenty for a 4 MB download
-const FALLBACK_TIMEOUT_MS = 15_000;  // 15 s per group
-
-// Node.js runtime (NOT edge) — response can be 3–4 MB
-export const runtime = "nodejs";
-// ISR caches the route response for 1 hour. The inner fetch() uses cache:"no-store"
-// to prevent Next.js from separately caching a stale CelesTrak error response — these
-// two settings operate at different layers and are intentionally complementary.
-export const revalidate = 3600; // 1 hour
-
-/** Returns true when the string looks like an HTML document (error page). */
-function isLikelyHtml(text: string): boolean {
-  const head = text.trimStart().substring(0, 100).toLowerCase();
-  return (
-    head.startsWith("<!doctype") ||
-    head.startsWith("<html") ||
-    head.startsWith("<head") ||
-    head.startsWith("<body")
-  );
+function aboveUrl(lat: number, lng: number, apiKey: string): string {
+  // N2YO path: /above/{lat}/{lng}/{alt}/{radius}/{category} — apiKey is a query param
+  return `${N2YO_BASE}/above/${lat}/${lng}/0/${RADIUS_DEG}/${CATEGORY_ALL}?apiKey=${apiKey}`;
 }
 
-/** Fetches a single CelesTrak TLE URL with the given timeout. Returns the raw text or null. */
-async function fetchTle(url: string, timeoutMs: number): Promise<string | null> {
+async function fetchHemisphere(
+  lat: number,
+  lng: number,
+  apiKey: string
+): Promise<SatelliteObject[]> {
   const controller = new AbortController();
-  const timer = setTimeout(() => controller.abort(), timeoutMs);
+  const timer = setTimeout(() => controller.abort(), TIMEOUT_MS);
   try {
-    const res = await fetch(url, {
+    const res = await fetch(aboveUrl(lat, lng, apiKey), {
       signal: controller.signal,
-      headers: FETCH_HEADERS,
       cache: "no-store",
     });
     clearTimeout(timer);
-
     if (!res.ok) {
-      console.error(
-        `[satellites] fetch error — status=${res.status} url=${url}`
-      );
-      return null;
+      console.error(`[satellites] N2YO error — status=${res.status} lat=${lat} lng=${lng}`);
+      return [];
     }
-
-    const contentType = res.headers.get("content-type") ?? "";
-    if (contentType.includes("html")) {
-      const snippet = (await res.text()).substring(0, 300);
-      console.error(
-        `[satellites] CelesTrak returned HTML (likely error page). url=${url} content-type=${contentType} snippet=${snippet}`
-      );
-      return null;
-    }
-
-    const text = await res.text();
-    if (isLikelyHtml(text)) {
-      console.error(
-        `[satellites] CelesTrak body looks like HTML despite content-type=${contentType}. url=${url} snippet=${text.substring(0, 300)}`
-      );
-      return null;
-    }
-
-    return text;
+    const data: N2YOAboveResponse = await res.json();
+    const objects = parseAboveResponse(data);
+    console.log(`[satellites] N2YO above(${lat},${lng}) → ${objects.length} satellites`);
+    return objects;
   } catch (err) {
     clearTimeout(timer);
     if (err instanceof Error && err.name === "AbortError") {
-      console.error(`[satellites] fetch timed out after ${timeoutMs}ms — url=${url}`);
+      console.error(`[satellites] N2YO fetch timed out after ${TIMEOUT_MS}ms lat=${lat} lng=${lng}`);
     } else {
-      console.error(`[satellites] fetch threw — url=${url}`, err);
+      console.error(`[satellites] N2YO fetch threw lat=${lat} lng=${lng}`, err);
     }
-    return null;
+    return [];
   }
 }
 
-/** Deduplicates SatelliteObjects by NORAD ID. First occurrence wins. */
-function dedupeByNorad(objects: SatelliteObject[]) {
+function dedupeByNorad(objects: SatelliteObject[]): SatelliteObject[] {
   const seen = new Set<number>();
   return objects.filter((o) => {
     if (seen.has(o.noradId)) return false;
@@ -107,60 +67,35 @@ function dedupeByNorad(objects: SatelliteObject[]) {
 }
 
 export async function GET() {
-  // ── Primary fetch ──────────────────────────────────────────────────────────
-  const primaryText = await fetchTle(PRIMARY_URL, PRIMARY_TIMEOUT_MS);
-
-  if (primaryText) {
-    const objects = parseGpResponse(primaryText);
-    if (objects.length > 0) {
-      console.log(`[satellites] primary fetch OK — ${objects.length} satellites`);
-      const body: SatelliteResponse = {
-        count: objects.length,
-        revalidatedAt: new Date().toISOString(),
-        objects,
-      };
-      return NextResponse.json(body);
-    }
-    console.error("[satellites] primary fetch returned text but parser produced 0 objects");
+  const apiKey = process.env.N2YO_API_KEY;
+  if (!apiKey) {
+    console.error("[satellites] N2YO_API_KEY is not set");
+    return NextResponse.json(
+      { error: "N2YO_API_KEY environment variable is not configured" },
+      { status: 503 }
+    );
   }
 
-  // ── Fallback: fetch all smaller groups in parallel ─────────────────────────
-  console.warn("[satellites] primary fetch failed — trying fallback groups");
-  const groupUrls = FALLBACK_GROUPS.map(
-    (g) => `https://celestrak.org/NORAD/elements/gp.php?GROUP=${g}&FORMAT=tle`
-  );
   const results = await Promise.allSettled(
-    groupUrls.map((url) => fetchTle(url, FALLBACK_TIMEOUT_MS))
+    OBSERVERS.map(({ lat, lng }) => fetchHemisphere(lat, lng, apiKey))
   );
 
   const combined: SatelliteObject[] = [];
-  results.forEach((r, i) => {
-    if (r.status === "fulfilled" && r.value) {
-      const parsed = parseGpResponse(r.value);
-      combined.push(...parsed);
-      console.log(`[satellites] fallback group=${FALLBACK_GROUPS[i]} — ${parsed.length} sats`);
-    }
+  results.forEach((r) => {
+    if (r.status === "fulfilled") combined.push(...r.value);
   });
 
   const objects = dedupeByNorad(combined);
 
   if (objects.length === 0) {
-    // Last resort: serve the bundled demo dataset (CelesTrak unreachable)
-    console.warn(`[satellites] all network fetches failed — serving bundled fallback (snapshot: ${FALLBACK_SNAPSHOT_DATE})`);
-    const fallbackObjects = parseGpResponse(FALLBACK_TLE_TEXT);
-    if (fallbackObjects.length === 0) {
-      console.error("[satellites] fallback TLE parse returned 0 objects — returning 503");
-      return NextResponse.json({ error: "CelesTrak unavailable" }, { status: 503 });
-    }
-    const fallbackBody: SatelliteResponse = {
-      count: fallbackObjects.length,
-      revalidatedAt: new Date().toISOString(),
-      objects: fallbackObjects,
-    };
-    return NextResponse.json(fallbackBody);
+    console.error("[satellites] both hemisphere fetches returned 0 satellites");
+    return NextResponse.json(
+      { error: "N2YO API unavailable — try again later" },
+      { status: 503 }
+    );
   }
 
-  console.log(`[satellites] fallback OK — ${objects.length} satellites total`);
+  console.log(`[satellites] total unique satellites: ${objects.length}`);
   const body: SatelliteResponse = {
     count: objects.length,
     revalidatedAt: new Date().toISOString(),
