@@ -7,44 +7,58 @@ export type OrbitClass = "LEO" | "MEO" | "GEO" | "HEO";
  * Detection is name-based — see constellationDetect.ts.
  */
 export type Constellation =
-  | "Starlink"       // name starts with "STARLINK"
-  | "OneWeb"         // name starts with "ONEWEB"
-  | "GPS"            // name includes "GPS" or "NAVSTAR"
-  | "Galileo"        // name starts with "GALILEO"
-  | "GLONASS"        // name starts with "GLONASS"
-  | "Space Station"  // name includes "ISS", "TIANGONG", or "CSS"
-  | "Weather"        // name includes "NOAA", "GOES", "METEOSAT", or "METEOR"
-  | "Science"        // name includes "HUBBLE" or "CHANDRA"
+  | "Starlink"
+  | "OneWeb"
+  | "GPS"
+  | "Galileo"
+  | "GLONASS"
+  | "Space Station"
+  | "Weather"
+  | "Science"
   | "Other";
 
-/** Keplerian elements for a geocentric ECI orbit (NOT heliocentric ecliptic). */
+/** Keplerian elements for orbit ring computation in SatelliteGlobe. */
 export interface SatelliteOrbitalElements {
-  a: number;   // semi-major axis in Earth radii (dimensionless)
-  e: number;   // eccentricity (dimensionless)
+  a: number;   // semi-major axis in Earth radii
+  e: number;   // eccentricity
   i: number;   // inclination in degrees
-  om: number;  // RAAN (right ascension of ascending node) in degrees
+  om: number;  // RAAN in degrees
   w: number;   // argument of pericenter in degrees
 }
 
-/** Normalised active satellite from CelesTrak GP JSON. */
+/** Active satellite from N2YO /above endpoint. */
 export interface SatelliteObject {
   noradId: number;
   name: string;
   intlDesignator: string;    // e.g. "1998-067A"
-  countryCode: string;       // may be "" if absent from GP response
-  launchDate: string;        // may be "" if absent from GP response
-  launchYear: number;        // parseInt(intlDesignator.slice(0,4)) || 0
+  launchDate: string;        // ISO date string from N2YO, e.g. "1998-11-20"
+  launchYear: number;        // parsed from launchDate
   orbitClass: OrbitClass;
-  apogeeKm: number;
-  perigeeKm: number;
-  inclinationDeg: number;
-  periodMin: number;         // 1440 / MEAN_MOTION (MEAN_MOTION in rev/day)
-  eccentricity: number;
-  raanDeg: number;           // RA_OF_ASC_NODE
-  argOfPericenterDeg: number; // ARG_OF_PERICENTER
+  altitudeKm: number;        // current altitude above Earth surface (km)
+  lat: number;               // current geodetic latitude (degrees)
+  lng: number;               // current geodetic longitude (degrees)
   constellation: Constellation;
+  // Optional — populated only when TLE is fetched on selection
+  tleLine1?: string;
+  tleLine2?: string;
+  inclinationDeg?: number;
+  eccentricity?: number;
+  periodMin?: number;
+  raanDeg?: number;
+  argOfPericenterDeg?: number;
+}
+
+/** Orbital data derived from TLE — fetched on-demand when a satellite is selected. */
+export interface TleDerived {
   tleLine1: string;
   tleLine2: string;
+  inclinationDeg: number;
+  eccentricity: number;
+  periodMin: number;
+  raanDeg: number;
+  argOfPericenterDeg: number;
+  apogeeKm: number;
+  perigeeKm: number;
 }
 
 export interface SatelliteResponse {
