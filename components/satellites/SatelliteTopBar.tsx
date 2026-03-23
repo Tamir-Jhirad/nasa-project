@@ -1,5 +1,5 @@
 // components/satellites/SatelliteTopBar.tsx
-import { Satellite, Globe, Layers, Zap } from "lucide-react";
+import { Satellite, Layers, TrendingUp, Zap } from "lucide-react";
 import { StatCard } from "@/components/cards/StatCard";
 import type { SatelliteObject } from "@/lib/celestrak/types";
 
@@ -10,7 +10,7 @@ interface Props {
 
 export function SatelliteTopBar({ objects, revalidatedAt }: Props) {
   const leoCount = objects.filter((o) => o.orbitClass === "LEO").length;
-  const countryCount = new Set(objects.map((o) => o.countryCode).filter(Boolean)).size;
+  const geoCount = objects.filter((o) => o.orbitClass === "GEO").length;
   const starlinkCount = objects.filter((o) => o.constellation === "Starlink").length;
   const starlinkPct = objects.length ? Math.round((starlinkCount / objects.length) * 100) : 0;
 
@@ -25,7 +25,7 @@ export function SatelliteTopBar({ objects, revalidatedAt }: Props) {
             </span>
           </div>
           <p className="text-xs text-slate-500 hidden sm:block">
-            CelesTrak active payloads · Updates every hour
+            N2YO live data · Updates every hour
           </p>
         </div>
         <span className="hidden sm:block text-xs font-mono text-slate-500">
@@ -33,14 +33,20 @@ export function SatelliteTopBar({ objects, revalidatedAt }: Props) {
         </span>
       </div>
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 px-4 sm:px-6 py-3 sm:py-4">
-        <StatCard label="Active Satellites" value={objects.length} sub="Active payloads only" icon={Satellite} />
-        <StatCard label="Countries" value={countryCount} sub="with active assets" icon={Globe} />
+        <StatCard label="Active Satellites" value={objects.length} sub="Currently tracked globally" icon={Satellite} />
         <StatCard
           label="LEO Satellites"
           value={leoCount}
           sub={`${objects.length ? Math.round((leoCount / objects.length) * 100) : 0}% of total — below 2,000 km`}
           icon={Layers}
           iconColor="text-neo-watchlist"
+        />
+        <StatCard
+          label="GEO Satellites"
+          value={geoCount}
+          sub={`${objects.length ? Math.round((geoCount / objects.length) * 100) : 0}% of total — ~35,786 km`}
+          icon={TrendingUp}
+          iconColor="text-neo-safe"
         />
         <StatCard
           label="Starlink Share"

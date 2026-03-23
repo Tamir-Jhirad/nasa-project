@@ -2,12 +2,12 @@
 "use client";
 
 import { X } from "lucide-react";
-import type { SatelliteObject } from "@/lib/celestrak/types";
+import type { SatelliteObject, TleDerived } from "@/lib/celestrak/types";
 
 interface Props {
   satellite: SatelliteObject;
+  tleDerived: TleDerived | null;
   onClose: () => void;
-  /** Live lat/lng fed from SatelliteGlobe's single SGP4 interval — avoids duplicate propagation */
   liveLatLng: { lat: number; lng: number } | null;
 }
 
@@ -18,8 +18,7 @@ const ORBIT_CLASS_COLORS = {
   HEO: "text-purple-400",
 };
 
-export function SatelliteDetailPanel({ satellite: sat, onClose, liveLatLng }: Props) {
-  // Format live position for display
+export function SatelliteDetailPanel({ satellite: sat, tleDerived, onClose, liveLatLng }: Props) {
   const position = liveLatLng
     ? {
         lat: `${Math.abs(liveLatLng.lat).toFixed(2)}° ${liveLatLng.lat >= 0 ? "N" : "S"}`,
@@ -27,11 +26,15 @@ export function SatelliteDetailPanel({ satellite: sat, onClose, liveLatLng }: Pr
       }
     : null;
 
-  // Orbital speed estimate: v ≈ √(μ/a) for circular orbit
-  const MU = 398600.4418;
-  const T = sat.periodMin * 60;
-  const a_km = (MU * (T / (2 * Math.PI)) ** 2) ** (1 / 3);
-  const speedKmS = Math.sqrt(MU / a_km);
+  // Speed estimate from TLE-derived semi-major axis, if available
+  const speedKmS = tleDerived
+    ? (() => {
+        const MU = 398600.4418;
+        const T = tleDerived.periodMin * 60;
+        const a_km = (MU * (T / (2 * Math.PI)) ** 2) ** (1 / 3);
+        return Math.sqrt(MU / a_km);
+      })()
+    : null;
 
   return (
     <div className="bg-space-800 border border-neo-accent/40 rounded-lg p-4">
@@ -54,12 +57,24 @@ export function SatelliteDetailPanel({ satellite: sat, onClose, liveLatLng }: Pr
         <Row label="NORAD ID" value={sat.noradId.toString()} accent />
         <Row label="Orbit class" value={sat.orbitClass} className={ORBIT_CLASS_COLORS[sat.orbitClass]} />
         <Row label="Constellation" value={sat.constellation} />
-        <Row label="Country" value={sat.countryCode || "—"} />
         <Row label="Launched" value={sat.launchDate || sat.launchYear.toString() || "—"} />
-        <Row label="Altitude" value={`${sat.perigeeKm.toFixed(0)}–${sat.apogeeKm.toFixed(0)} km`} />
-        <Row label="Inclination" value={`${sat.inclinationDeg.toFixed(2)}°`} />
-        <Row label="Period" value={`${sat.periodMin.toFixed(1)} min`} />
-        <Row label="Speed" value={`${speedKmS.toFixed(2)} km/s`} />
+        <Row label="Altitude" value={`${sat.altitudeKm.toFixed(0)} km`} />
+
+        {tleDerived ? (
+          <>
+            <Row
+              label="Perigee / Apogee"
+              value={`${tleDerived.perigeeKm.toFixed(0)}–${tleDerived.apogeeKm.toFixed(0)} km`}
+            />
+            <Row label="Inclination" value={`${tleDerived.inclinationDeg.toFixed(2)}°`} />
+            <Row label="Period" value={`${tleDerived.periodMin.toFixed(1)} min`} />
+            {speedKmS !== null && (
+              <Row label="Speed" value={`${speedKmS.toFixed(2)} km/s`} />
+            )}
+          </>
+        ) : (
+          <div className="text-slate-600 text-xs py-1">Loading orbital data…</div>
+        )}
       </dl>
 
       {position && (
