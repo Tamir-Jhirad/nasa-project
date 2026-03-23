@@ -22,7 +22,21 @@
       "Bash(agent-browser open:*)",
       "Bash(agent-browser wait:*)",
       "Bash(agent-browser screenshot:*)",
-      "Bash(kill 1375)"
+      "Bash(kill 1375)",
+      "Bash(git config:*)",
+      "Bash(vercel:*)",
+      "Bash(curl -s \"https://ssd-api.jpl.nasa.gov/doc/sbdb.html\")",
+      "Bash(curl:*)",
+      "Bash(find /c/Users/SwankyDwarf/OneDrive/Desktop/Claude_Projects/nasa-project -not -path */node_modules/* -type f)",
+      "Bash(npm run:*)",
+      "Read(//c/Users/SwankyDwarf/.claude/plugins/cache/claude-plugins-official/superpowers/5.0.5/**)",
+      "Bash(bash scripts/start-server.sh --project-dir \"C:/Users/SwankyDwarf/OneDrive/Desktop/Claude_Projects/nasa-project\")",
+      "Bash(cat \"C:/Users/SwankyDwarf/OneDrive/Desktop/Claude_Projects/nasa-project/.superpowers/brainstorm\"/*/.server-info)",
+      "WebSearch",
+      "Bash(python3:*)",
+      "Bash(node:*)",
+      "Bash(git checkout:*)",
+      "WebFetch(domain:celestrak.org)"
     ]
   }
 }

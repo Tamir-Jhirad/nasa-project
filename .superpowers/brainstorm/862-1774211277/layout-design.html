@@ -1,0 +1,394 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Satellites Dashboard — Layout Design</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: #030712; color: #e2e8f0; font-family: 'Courier New', monospace; font-size: 12px; }
+
+  .page { display: flex; flex-direction: column; height: 100vh; overflow: hidden; }
+
+  /* TopBar */
+  .topbar { background: #0a0f1e; border-bottom: 1px solid #334155; flex-shrink: 0; }
+  .topbar-title { display: flex; align-items: center; justify-content: space-between; padding: 10px 16px; border-bottom: 1px solid #1e293b; }
+  .logo { display: flex; align-items: center; gap: 8px; }
+  .logo-icon { width: 20px; height: 20px; background: #38bdf8; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 10px; }
+  .logo-text { color: #38bdf8; font-weight: bold; font-size: 14px; letter-spacing: 4px; text-transform: uppercase; }
+  .nav-tabs { display: flex; gap: 0; }
+  .nav-tab { padding: 6px 16px; font-size: 11px; letter-spacing: 2px; text-transform: uppercase; border: 1px solid #334155; cursor: pointer; }
+  .nav-tab.active { background: #38bdf8; color: #030712; border-color: #38bdf8; font-weight: bold; }
+  .nav-tab:not(.active) { background: #0f172a; color: #64748b; }
+  .nav-tab:not(.active):hover { color: #38bdf8; }
+  .topbar-stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1px; background: #1e293b; border-top: 1px solid #1e293b; }
+  .stat-card { background: #0a0f1e; padding: 10px 14px; }
+  .stat-label { color: #64748b; font-size: 10px; text-transform: uppercase; letter-spacing: 1px; }
+  .stat-value { color: #e2e8f0; font-size: 18px; font-weight: bold; margin: 2px 0; }
+  .stat-sub { color: #475569; font-size: 10px; }
+  .stat-value.accent { color: #38bdf8; }
+  .stat-value.warn { color: #f59e0b; }
+
+  /* Main layout */
+  .main { display: flex; flex: 1; overflow: hidden; }
+
+  /* Sidebar */
+  .sidebar { width: 200px; background: #0a0f1e; border-right: 1px solid #1e293b; flex-shrink: 0; overflow-y: auto; padding: 12px 10px; display: flex; flex-direction: column; gap: 12px; }
+  .sidebar-search { background: #0f172a; border: 1px solid #334155; padding: 6px 10px; color: #94a3b8; font-family: inherit; font-size: 11px; width: 100%; }
+  .sidebar-search::placeholder { color: #475569; }
+  .sidebar-section-label { color: #475569; font-size: 10px; text-transform: uppercase; letter-spacing: 2px; margin-bottom: 4px; }
+  .group-item { display: flex; align-items: center; justify-content: space-between; padding: 5px 8px; border-radius: 4px; cursor: pointer; }
+  .group-item:hover { background: #0f172a; }
+  .group-item.active { background: #0f172a; border-left: 2px solid #38bdf8; }
+  .group-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+  .group-name { flex: 1; margin-left: 8px; color: #94a3b8; }
+  .group-item.active .group-name { color: #38bdf8; }
+  .group-count { color: #475569; font-size: 10px; }
+
+  /* Content area */
+  .content { flex: 1; overflow-y: auto; padding: 12px; display: flex; flex-direction: column; gap: 10px; }
+
+  /* Top row: Globe + Charts */
+  .top-row { display: grid; grid-template-columns: 1fr 280px; gap: 10px; height: 340px; }
+  .globe-panel { background: #0a0f1e; border: 1px solid #1e293b; border-radius: 8px; padding: 12px; display: flex; flex-direction: column; }
+  .panel-label { color: #64748b; font-size: 10px; text-transform: uppercase; letter-spacing: 2px; margin-bottom: 8px; }
+  .globe-area { flex: 1; display: flex; align-items: center; justify-content: center; position: relative; }
+
+  /* Fake globe SVG */
+  .charts-col { display: flex; flex-direction: column; gap: 10px; }
+  .chart-panel { background: #0a0f1e; border: 1px solid #1e293b; border-radius: 8px; padding: 12px; flex: 1; }
+
+  /* Bottom row */
+  .bottom-row { display: grid; grid-template-columns: 1fr 240px; gap: 10px; }
+  .bar-panel { background: #0a0f1e; border: 1px solid #1e293b; border-radius: 8px; padding: 12px; }
+  .detail-panel { background: #0a0f1e; border: 1px solid #38bdf8; border-radius: 8px; padding: 12px; }
+  .detail-header { color: #38bdf8; font-size: 11px; font-weight: bold; margin-bottom: 10px; letter-spacing: 1px; }
+  .detail-row { display: flex; justify-content: space-between; padding: 4px 0; border-bottom: 1px solid #1e293b; }
+  .detail-key { color: #64748b; font-size: 10px; }
+  .detail-val { color: #e2e8f0; font-size: 10px; }
+  .detail-val.accent { color: #38bdf8; }
+
+  /* Bar chart mockup */
+  .bar-row { display: flex; align-items: center; gap: 8px; margin-bottom: 6px; }
+  .bar-label-text { width: 70px; color: #64748b; font-size: 10px; text-align: right; flex-shrink: 0; }
+  .bar-track { flex: 1; background: #0f172a; height: 14px; border-radius: 2px; overflow: hidden; }
+  .bar-fill { height: 100%; border-radius: 2px; display: flex; align-items: center; padding-left: 4px; }
+  .bar-num { font-size: 9px; color: rgba(0,0,0,0.7); font-weight: bold; }
+
+  /* Donut mockup */
+  .donut-legend { display: flex; flex-direction: column; gap: 5px; margin-top: 8px; }
+  .legend-row { display: flex; align-items: center; gap: 6px; }
+  .legend-dot { width: 8px; height: 8px; border-radius: 2px; flex-shrink: 0; }
+  .legend-text { color: #94a3b8; font-size: 10px; }
+  .legend-pct { color: #475569; font-size: 10px; margin-left: auto; }
+
+  /* Launch timeline mockup */
+  .timeline-bars { display: flex; align-items: flex-end; gap: 2px; height: 60px; margin-top: 8px; }
+  .tbar { background: #1e3a5f; width: 100%; border-radius: 1px 1px 0 0; }
+  .tbar.highlight { background: #38bdf8; }
+  .tbar.starlink { background: #0ea5e9; }
+  .timeline-years { display: flex; justify-content: space-between; margin-top: 3px; }
+  .tyear { color: #475569; font-size: 9px; }
+
+  /* Annotation labels */
+  .annotation { display: inline-block; background: rgba(56,189,248,0.1); border: 1px solid rgba(56,189,248,0.3); color: #38bdf8; font-size: 9px; padding: 2px 6px; border-radius: 4px; margin-left: 6px; }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <!-- TopBar -->
+  <div class="topbar">
+    <div class="topbar-title">
+      <div class="logo">
+        <div class="logo-icon">🛰</div>
+        <span class="logo-text">NEO-Guardian</span>
+      </div>
+      <div class="nav-tabs">
+        <div class="nav-tab">☄ Asteroids</div>
+        <div class="nav-tab active">🛰 Satellites</div>
+      </div>
+      <span style="color:#475569;font-size:10px">Updated: 22 Mar 2026 06:00 UTC</span>
+    </div>
+    <div class="topbar-stats">
+      <div class="stat-card">
+        <div class="stat-label">Active Satellites</div>
+        <div class="stat-value accent">8,344</div>
+        <div class="stat-sub">CelesTrak active payloads</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Countries</div>
+        <div class="stat-value">87</div>
+        <div class="stat-sub">with active assets</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">LEO Satellites</div>
+        <div class="stat-value warn">6,901</div>
+        <div class="stat-sub">82% of all active — below 2000 km</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Starlink Share</div>
+        <div class="stat-value" style="color:#ef4444">61%</div>
+        <div class="stat-sub">5,092 sats — SpaceX</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Main -->
+  <div class="main">
+
+    <!-- Sidebar -->
+    <div class="sidebar">
+      <input class="sidebar-search" placeholder="🔍 Search satellite / NORAD ID…" />
+      <div>
+        <div class="sidebar-section-label">Constellations</div>
+        <div class="group-item active">
+          <div class="group-dot" style="background:#38bdf8"></div>
+          <span class="group-name">All Active</span>
+          <span class="group-count">8,344</span>
+        </div>
+        <div class="group-item">
+          <div class="group-dot" style="background:#0ea5e9"></div>
+          <span class="group-name">Starlink</span>
+          <span class="group-count">5,092</span>
+        </div>
+        <div class="group-item">
+          <div class="group-dot" style="background:#a78bfa"></div>
+          <span class="group-name">OneWeb</span>
+          <span class="group-count">648</span>
+        </div>
+        <div class="group-item">
+          <div class="group-dot" style="background:#22c55e"></div>
+          <span class="group-name">GPS (US)</span>
+          <span class="group-count">31</span>
+        </div>
+        <div class="group-item">
+          <div class="group-dot" style="background:#f59e0b"></div>
+          <span class="group-name">Galileo (EU)</span>
+          <span class="group-count">28</span>
+        </div>
+        <div class="group-item">
+          <div class="group-dot" style="background:#ef4444"></div>
+          <span class="group-name">GLONASS (RU)</span>
+          <span class="group-count">24</span>
+        </div>
+        <div class="group-item">
+          <div class="group-dot" style="background:#ec4899"></div>
+          <span class="group-name">Space Stations</span>
+          <span class="group-count">3</span>
+        </div>
+        <div class="group-item">
+          <div class="group-dot" style="background:#06b6d4"></div>
+          <span class="group-name">Weather</span>
+          <span class="group-count">112</span>
+        </div>
+        <div class="group-item">
+          <div class="group-dot" style="background:#8b5cf6"></div>
+          <span class="group-name">Science</span>
+          <span class="group-count">201</span>
+        </div>
+      </div>
+      <div>
+        <div class="sidebar-section-label">Orbit Class</div>
+        <div class="group-item">
+          <div class="group-dot" style="background:#38bdf8"></div>
+          <span class="group-name">LEO</span>
+          <span class="group-count">6,901</span>
+        </div>
+        <div class="group-item">
+          <div class="group-dot" style="background:#f59e0b"></div>
+          <span class="group-name">MEO</span>
+          <span class="group-count">138</span>
+        </div>
+        <div class="group-item">
+          <div class="group-dot" style="background:#22c55e"></div>
+          <span class="group-name">GEO</span>
+          <span class="group-count">592</span>
+        </div>
+        <div class="group-item">
+          <div class="group-dot" style="background:#a78bfa"></div>
+          <span class="group-name">HEO</span>
+          <span class="group-count">83</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Content -->
+    <div class="content">
+
+      <!-- Top row: Globe + Charts -->
+      <div class="top-row">
+
+        <!-- Globe -->
+        <div class="globe-panel">
+          <div class="panel-label">Live Orbital Positions <span class="annotation">select to animate</span></div>
+          <div class="globe-area">
+            <svg width="280" height="280" viewBox="0 0 280 280">
+              <!-- Glow -->
+              <circle cx="140" cy="140" r="125" fill="none" stroke="#3b82f6" stroke-width="1" opacity="0.15"/>
+              <!-- Atmosphere -->
+              <circle cx="140" cy="140" r="118" fill="rgba(59,130,246,0.05)"/>
+              <!-- Earth -->
+              <circle cx="140" cy="140" r="100" fill="#1e3a5f"/>
+              <circle cx="140" cy="140" r="100" fill="none" stroke="#3b82f6" stroke-width="1" opacity="0.3"/>
+              <!-- Continents hint -->
+              <ellipse cx="120" cy="130" rx="25" ry="18" fill="#166534" opacity="0.4"/>
+              <ellipse cx="165" cy="125" rx="20" ry="25" fill="#166534" opacity="0.4"/>
+              <ellipse cx="140" cy="165" rx="15" ry="10" fill="#166534" opacity="0.3"/>
+              <!-- LEO orbit band (many dots) -->
+              <ellipse cx="140" cy="140" rx="130" ry="65" fill="none" stroke="rgba(56,189,248,0.15)" stroke-width="1"/>
+              <!-- Starlink constellation dots scattered in LEO -->
+              <circle cx="30" cy="140" r="1.5" fill="#38bdf8" opacity="0.8"/>
+              <circle cx="48" cy="105" r="1.5" fill="#38bdf8" opacity="0.8"/>
+              <circle cx="80" cy="82" r="1.5" fill="#38bdf8" opacity="0.8"/>
+              <circle cx="120" cy="76" r="1.5" fill="#38bdf8" opacity="0.8"/>
+              <circle cx="160" cy="78" r="1.5" fill="#38bdf8" opacity="0.8"/>
+              <circle cx="200" cy="90" r="1.5" fill="#38bdf8" opacity="0.8"/>
+              <circle cx="230" cy="112" r="1.5" fill="#38bdf8" opacity="0.8"/>
+              <circle cx="248" cy="140" r="1.5" fill="#38bdf8" opacity="0.8"/>
+              <circle cx="235" cy="168" r="1.5" fill="#38bdf8" opacity="0.8"/>
+              <circle cx="205" cy="190" r="1.5" fill="#38bdf8" opacity="0.8"/>
+              <circle cx="170" cy="205" r="1.5" fill="#38bdf8" opacity="0.8"/>
+              <circle cx="130" cy="207" r="1.5" fill="#38bdf8" opacity="0.8"/>
+              <circle cx="92" cy="198" r="1.5" fill="#38bdf8" opacity="0.8"/>
+              <circle cx="60" cy="180" r="1.5" fill="#38bdf8" opacity="0.8"/>
+              <!-- GEO ring (higher, more equatorial) -->
+              <ellipse cx="140" cy="140" rx="155" ry="20" fill="none" stroke="rgba(34,197,94,0.3)" stroke-width="1" stroke-dasharray="3 3"/>
+              <!-- GEO dots -->
+              <circle cx="295" cy="140" r="2" fill="#22c55e" opacity="0.9"/>
+              <circle cx="250" cy="145" r="2" fill="#22c55e" opacity="0.9"/>
+              <circle cx="30" cy="137" r="2" fill="#22c55e" opacity="0.9"/>
+              <!-- ISS — highlighted (selected) -->
+              <circle cx="195" cy="95" r="4" fill="#f59e0b"/>
+              <circle cx="195" cy="95" r="8" fill="#f59e0b" opacity="0.2"/>
+              <!-- ISS orbit ring -->
+              <ellipse cx="140" cy="140" rx="118" ry="59" fill="none" stroke="#f59e0b" stroke-width="1.5" stroke-dasharray="4 3" opacity="0.8"/>
+              <!-- Legend -->
+              <circle cx="15" cy="265" r="3" fill="#38bdf8"/>
+              <text x="22" y="268" fill="#64748b" font-size="9" font-family="monospace">LEO</text>
+              <circle cx="55" cy="265" r="3" fill="#22c55e"/>
+              <text x="62" y="268" fill="#64748b" font-size="9" font-family="monospace">GEO</text>
+              <circle cx="95" cy="265" r="3" fill="#f59e0b"/>
+              <text x="102" y="268" fill="#64748b" font-size="9" font-family="monospace">Selected</text>
+            </svg>
+          </div>
+        </div>
+
+        <!-- Charts column -->
+        <div class="charts-col">
+
+          <!-- Orbit class donut -->
+          <div class="chart-panel">
+            <div class="panel-label">Orbit Class Distribution</div>
+            <div style="display:flex;align-items:center;gap:12px;margin-top:6px">
+              <svg width="80" height="80" viewBox="0 0 80 80">
+                <!-- Simple donut -->
+                <circle cx="40" cy="40" r="30" fill="none" stroke="#38bdf8" stroke-width="12" stroke-dasharray="149 44" stroke-dashoffset="0"/>
+                <circle cx="40" cy="40" r="30" fill="none" stroke="#22c55e" stroke-width="12" stroke-dasharray="28 165" stroke-dashoffset="-149"/>
+                <circle cx="40" cy="40" r="30" fill="none" stroke="#f59e0b" stroke-width="12" stroke-dasharray="7 186" stroke-dashoffset="-177"/>
+                <circle cx="40" cy="40" r="30" fill="none" stroke="#a78bfa" stroke-width="12" stroke-dasharray="4 189" stroke-dashoffset="-184"/>
+                <circle cx="40" cy="40" r="18" fill="#0a0f1e"/>
+                <text x="40" y="43" text-anchor="middle" fill="#e2e8f0" font-size="11" font-weight="bold" font-family="monospace">82%</text>
+                <text x="40" y="54" text-anchor="middle" fill="#64748b" font-size="7" font-family="monospace">LEO</text>
+              </svg>
+              <div class="donut-legend">
+                <div class="legend-row"><div class="legend-dot" style="background:#38bdf8"></div><span class="legend-text">LEO</span><span class="legend-pct">82%</span></div>
+                <div class="legend-row"><div class="legend-dot" style="background:#22c55e"></div><span class="legend-text">GEO</span><span class="legend-pct">7%</span></div>
+                <div class="legend-row"><div class="legend-dot" style="background:#f59e0b"></div><span class="legend-text">MEO</span><span class="legend-pct">2%</span></div>
+                <div class="legend-row"><div class="legend-dot" style="background:#a78bfa"></div><span class="legend-text">HEO</span><span class="legend-pct">1%</span></div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Launch timeline -->
+          <div class="chart-panel">
+            <div class="panel-label">Launches Per Year</div>
+            <div class="timeline-bars">
+              <div class="tbar" style="height:8%"></div>
+              <div class="tbar" style="height:10%"></div>
+              <div class="tbar" style="height:12%"></div>
+              <div class="tbar" style="height:9%"></div>
+              <div class="tbar" style="height:11%"></div>
+              <div class="tbar" style="height:15%"></div>
+              <div class="tbar" style="height:18%"></div>
+              <div class="tbar" style="height:16%"></div>
+              <div class="tbar" style="height:20%"></div>
+              <div class="tbar" style="height:22%"></div>
+              <div class="tbar starlink" style="height:35%"></div>
+              <div class="tbar starlink" style="height:55%"></div>
+              <div class="tbar starlink" style="height:72%"></div>
+              <div class="tbar starlink" style="height:85%"></div>
+              <div class="tbar starlink highlight" style="height:100%"></div>
+              <div class="tbar starlink" style="height:78%"></div>
+            </div>
+            <div class="timeline-years">
+              <span class="tyear">2010</span>
+              <span class="tyear" style="color:#38bdf8">2019↑</span>
+              <span class="tyear">2025</span>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- Bottom row: Constellation bar + selected satellite detail -->
+      <div class="bottom-row">
+        <div class="bar-panel">
+          <div class="panel-label">Top Constellations / Countries</div>
+          <div style="margin-top:10px">
+            <div class="bar-row">
+              <span class="bar-label-text">Starlink</span>
+              <div class="bar-track"><div class="bar-fill" style="width:61%;background:#0ea5e9"><span class="bar-num">5,092</span></div></div>
+            </div>
+            <div class="bar-row">
+              <span class="bar-label-text">OneWeb</span>
+              <div class="bar-track"><div class="bar-fill" style="width:8%;background:#a78bfa"><span class="bar-num">648</span></div></div>
+            </div>
+            <div class="bar-row">
+              <span class="bar-label-text">China (CZ)</span>
+              <div class="bar-track"><div class="bar-fill" style="width:6%;background:#ef4444"><span class="bar-num">498</span></div></div>
+            </div>
+            <div class="bar-row">
+              <span class="bar-label-text">Weather</span>
+              <div class="bar-track"><div class="bar-fill" style="width:1.5%;background:#06b6d4"><span class="bar-num">112</span></div></div>
+            </div>
+            <div class="bar-row">
+              <span class="bar-label-text">Science</span>
+              <div class="bar-track"><div class="bar-fill" style="width:2.5%;background:#8b5cf6"><span class="bar-num">201</span></div></div>
+            </div>
+            <div class="bar-row">
+              <span class="bar-label-text">GPS</span>
+              <div class="bar-track"><div class="bar-fill" style="width:0.4%;background:#22c55e"><span class="bar-num">31</span></div></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Selected satellite detail panel -->
+        <div class="detail-panel">
+          <div class="detail-header">🛰 ISS (ZARYA) — SELECTED</div>
+          <div class="detail-row"><span class="detail-key">NORAD ID</span><span class="detail-val accent">25544</span></div>
+          <div class="detail-row"><span class="detail-key">Country</span><span class="detail-val">US/RU/INT'L</span></div>
+          <div class="detail-row"><span class="detail-key">Launched</span><span class="detail-val">1998-11-20</span></div>
+          <div class="detail-row"><span class="detail-key">Orbit Class</span><span class="detail-val accent">LEO</span></div>
+          <div class="detail-row"><span class="detail-key">Altitude</span><span class="detail-val">418–423 km</span></div>
+          <div class="detail-row"><span class="detail-key">Inclination</span><span class="detail-val">51.6°</span></div>
+          <div class="detail-row"><span class="detail-key">Period</span><span class="detail-val">92.9 min</span></div>
+          <div class="detail-row"><span class="detail-key">Speed</span><span class="detail-val">7.66 km/s</span></div>
+          <div style="margin-top:8px;padding:6px;background:rgba(56,189,248,0.08);border-radius:4px">
+            <div class="detail-key" style="margin-bottom:3px">CURRENT POSITION</div>
+            <div class="detail-val accent" style="font-size:11px">48.3°N, 22.7°E</div>
+            <div class="detail-key" style="margin-top:2px;font-size:9px">Updates every 2 seconds</div>
+          </div>
+        </div>
+
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<script>
+// Inject superpowers helper for selection tracking
+</script>
+</body>
+</html>
