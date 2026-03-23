@@ -1,0 +1,130 @@
+<h2>Globe + Asteroid List — Mockup</h2>
+<p class="subtitle">How the right panel will look with the scrollable selection list</p>
+
+<div class="mockup" style="max-width:900px;margin:0 auto;">
+  <div class="mockup-header">NEO-Guardian Dashboard — Globe Section</div>
+  <div class="mockup-body" style="padding:0;">
+    <div style="display:flex;gap:0;min-height:520px;">
+
+      <!-- Globe placeholder -->
+      <div style="width:480px;min-width:480px;background:#0f172a;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:20px;border-right:1px solid #334155;">
+        <div style="width:320px;height:320px;border-radius:50%;background:radial-gradient(circle at 35% 35%, #1e40af 0%, #1e3a5f 40%, #0f172a 100%);border:2px solid #334155;position:relative;overflow:hidden;box-shadow:0 0 60px rgba(30,64,175,0.3);">
+          <!-- simulated arcs -->
+          <svg viewBox="0 0 320 320" style="position:absolute;top:0;left:0;width:100%;height:100%;">
+            <path d="M 60 200 Q 120 80 240 140" stroke="#ef4444" stroke-width="2" fill="none" opacity="0.8" stroke-dasharray="4 2"/>
+            <path d="M 80 220 Q 160 60 260 160" stroke="#ef4444" stroke-width="2" fill="none" opacity="0.6" stroke-dasharray="4 2"/>
+            <path d="M 100 180 Q 180 100 270 200" stroke="#f59e0b" stroke-width="1.5" fill="none" opacity="0.7" stroke-dasharray="4 2"/>
+            <path d="M 50 160 Q 130 240 280 180" stroke="#f59e0b" stroke-width="1.5" fill="none" opacity="0.5" stroke-dasharray="4 2"/>
+            <path d="M 70 240 Q 200 140 290 220" stroke="#22c55e" stroke-width="1" fill="none" opacity="0.4" stroke-dasharray="4 2"/>
+            <path d="M 90 150 Q 170 280 300 200" stroke="#22c55e" stroke-width="1" fill="none" opacity="0.35" stroke-dasharray="4 2"/>
+            <!-- highlighted arc (selected) -->
+            <path d="M 60 200 Q 120 80 240 140" stroke="#ef4444" stroke-width="3" fill="none" opacity="1"/>
+            <circle cx="60" cy="200" r="4" fill="#ef4444"/>
+            <circle cx="240" cy="140" r="4" fill="#ef4444"/>
+          </svg>
+        </div>
+        <p style="font-family:monospace;font-size:11px;color:#475569;margin-top:12px;">
+          Showing top 50 objects · Select from the list or click an arc
+        </p>
+      </div>
+
+      <!-- Right panel: list + detail -->
+      <div style="flex:1;background:#0f172a;display:flex;flex-direction:column;">
+
+        <!-- Asteroid list -->
+        <div style="overflow-y:auto;max-height:280px;border-bottom:1px solid #1e293b;">
+          <!-- Critical rows -->
+          <div style="display:flex;align-items:center;gap:10px;padding:8px 14px;background:#1e293b;border-left:3px solid #ef4444;cursor:pointer;">
+            <span style="width:8px;height:8px;border-radius:50%;background:#ef4444;flex-shrink:0;"></span>
+            <span style="font-family:monospace;font-size:12px;color:#f1f5f9;flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">(2024 YR4)</span>
+            <span style="font-family:monospace;font-size:11px;color:#64748b;white-space:nowrap;">0.00089 AU</span>
+          </div>
+          <div style="display:flex;align-items:center;gap:10px;padding:8px 14px;cursor:pointer;border-left:3px solid transparent;">
+            <span style="width:8px;height:8px;border-radius:50%;background:#ef4444;flex-shrink:0;"></span>
+            <span style="font-family:monospace;font-size:12px;color:#94a3b8;flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">(2025 BC7)</span>
+            <span style="font-family:monospace;font-size:11px;color:#64748b;white-space:nowrap;">0.00143 AU</span>
+          </div>
+          <div style="display:flex;align-items:center;gap:10px;padding:8px 14px;cursor:pointer;border-left:3px solid transparent;">
+            <span style="width:8px;height:8px;border-radius:50%;background:#ef4444;flex-shrink:0;"></span>
+            <span style="font-family:monospace;font-size:12px;color:#94a3b8;flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">(2026 AX15)</span>
+            <span style="font-family:monospace;font-size:11px;color:#64748b;white-space:nowrap;">0.00217 AU</span>
+          </div>
+          <!-- Watchlist rows -->
+          <div style="display:flex;align-items:center;gap:10px;padding:8px 14px;cursor:pointer;border-left:3px solid transparent;">
+            <span style="width:8px;height:8px;border-radius:50%;background:#f59e0b;flex-shrink:0;"></span>
+            <span style="font-family:monospace;font-size:12px;color:#94a3b8;flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">(2025 WQ7)</span>
+            <span style="font-family:monospace;font-size:11px;color:#64748b;white-space:nowrap;">0.00312 AU</span>
+          </div>
+          <div style="display:flex;align-items:center;gap:10px;padding:8px 14px;cursor:pointer;border-left:3px solid transparent;">
+            <span style="width:8px;height:8px;border-radius:50%;background:#f59e0b;flex-shrink:0;"></span>
+            <span style="font-family:monospace;font-size:12px;color:#94a3b8;flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">(2024 XK3)</span>
+            <span style="font-family:monospace;font-size:11px;color:#64748b;white-space:nowrap;">0.00488 AU</span>
+          </div>
+          <div style="display:flex;align-items:center;gap:10px;padding:8px 14px;cursor:pointer;border-left:3px solid transparent;">
+            <span style="width:8px;height:8px;border-radius:50%;background:#f59e0b;flex-shrink:0;"></span>
+            <span style="font-family:monospace;font-size:12px;color:#94a3b8;flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">(2025 RZ12)</span>
+            <span style="font-family:monospace;font-size:11px;color:#64748b;white-space:nowrap;">0.00601 AU</span>
+          </div>
+          <!-- Safe rows -->
+          <div style="display:flex;align-items:center;gap:10px;padding:8px 14px;cursor:pointer;border-left:3px solid transparent;">
+            <span style="width:8px;height:8px;border-radius:50%;background:#22c55e;flex-shrink:0;"></span>
+            <span style="font-family:monospace;font-size:12px;color:#94a3b8;flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">(2026 BM4)</span>
+            <span style="font-family:monospace;font-size:11px;color:#64748b;white-space:nowrap;">0.00892 AU</span>
+          </div>
+          <div style="display:flex;align-items:center;gap:10px;padding:8px 14px;cursor:pointer;border-left:3px solid transparent;">
+            <span style="width:8px;height:8px;border-radius:50%;background:#22c55e;flex-shrink:0;"></span>
+            <span style="font-family:monospace;font-size:12px;color:#94a3b8;flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">(2025 YL4)</span>
+            <span style="font-family:monospace;font-size:11px;color:#64748b;white-space:nowrap;">0.01134 AU</span>
+          </div>
+          <div style="display:flex;align-items:center;gap:10px;padding:8px 14px;cursor:pointer;border-left:3px solid transparent;">
+            <span style="width:8px;height:8px;border-radius:50%;background:#22c55e;flex-shrink:0;"></span>
+            <span style="font-family:monospace;font-size:12px;color:#94a3b8;flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">(2024 PF9)</span>
+            <span style="font-family:monospace;font-size:11px;color:#64748b;white-space:nowrap;">0.01456 AU</span>
+          </div>
+          <div style="display:flex;align-items:center;gap:10px;padding:8px 14px;cursor:pointer;border-left:3px solid transparent;opacity:0.5;">
+            <span style="font-family:monospace;font-size:11px;color:#475569;padding-left:18px;">↓ 41 more below</span>
+          </div>
+        </div>
+
+        <!-- Detail card (selected state) -->
+        <div style="padding:14px;flex:1;">
+          <div style="background:#1e293b;border:1px solid #334155;border-radius:8px;padding:14px;">
+            <div style="display:flex;justify-content:space-between;align-items:start;margin-bottom:8px;">
+              <p style="font-family:monospace;font-size:13px;color:#f1f5f9;margin:0;">(2024 YR4)</p>
+              <button style="background:none;border:none;color:#475569;font-size:14px;cursor:pointer;line-height:1;">✕</button>
+            </div>
+            <span style="background:#7f1d1d;color:#fca5a5;font-size:10px;font-family:monospace;padding:2px 8px;border-radius:4px;border:1px solid #ef4444;display:inline-block;margin-bottom:10px;">CRITICAL</span>
+            <div style="font-family:monospace;font-size:11px;">
+              <div style="display:flex;justify-content:space-between;padding:3px 0;border-bottom:1px solid #1e293b;">
+                <span style="color:#64748b;">Miss distance</span>
+                <span style="color:#cbd5e1;">34,212 × Moon</span>
+              </div>
+              <div style="display:flex;justify-content:space-between;padding:3px 0;border-bottom:1px solid #1e293b;">
+                <span style="color:#64748b;">Speed</span>
+                <span style="color:#cbd5e1;">28.4 km/s</span>
+              </div>
+              <div style="display:flex;justify-content:space-between;padding:3px 0;border-bottom:1px solid #1e293b;">
+                <span style="color:#64748b;">Diameter</span>
+                <span style="color:#cbd5e1;">~180 m</span>
+              </div>
+              <div style="display:flex;justify-content:space-between;padding:3px 0;border-bottom:1px solid #1e293b;">
+                <span style="color:#64748b;">Risk score</span>
+                <span style="color:#cbd5e1;">3.82</span>
+              </div>
+              <div style="display:flex;justify-content:space-between;padding:3px 0;">
+                <span style="color:#64748b;">Close approach</span>
+                <span style="color:#cbd5e1;">Feb 14, 2032</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</div>
+
+<p class="subtitle" style="text-align:center;margin-top:16px;">
+  The first row (2024 YR4) is selected — notice the red left border and highlighted background.<br>
+  The matching arc on the globe is also highlighted (thicker, full opacity).
+</p>

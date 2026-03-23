@@ -1,0 +1,52 @@
+<h2>3 Approaches for the Satellites Dashboard</h2>
+<p class="subtitle">Each differs in scope and analytics depth. Pick the one that feels right.</p>
+
+<div class="options">
+
+  <div class="option" data-choice="minimal" onclick="toggleSelect(this)">
+    <div class="letter">A</div>
+    <div class="content">
+      <h3>Globe-First — Minimal</h3>
+      <p>The 3D globe is the entire experience. KPI cards at the top (total tracked, countries, LEO count), sidebar with group filters + search, globe in the center with live orbit animation when satellites are selected. No charts, no table.</p>
+      <div class="pros-cons" style="margin-top:8px">
+        <div class="pros"><h4>Pros</h4><ul><li>Fast to build</li><li>The globe is stunning on its own</li><li>Low data volume — no table rendering</li></ul></div>
+        <div class="cons"><h4>Cons</h4><ul><li>Less analytical depth</li><li>No breakdown of the dataset</li></ul></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="option" data-choice="full" onclick="toggleSelect(this)">
+    <div class="letter">B</div>
+    <div class="content">
+      <h3>Full Analytics — Mirrors the Asteroid Dashboard</h3>
+      <p>KPI cards + globe + 3–4 charts (orbit class distribution donut, launch year timeline bar chart, country breakdown, object type pie) + a searchable/sortable satellite data table. Navigation tabs at the top switch between Asteroids and Satellites.</p>
+      <div class="pros-cons" style="margin-top:8px">
+        <div class="pros"><h4>Pros</h4><ul><li>Rich, analyst-grade insights</li><li>Consistent with asteroid page pattern</li><li>Tells the space congestion story</li></ul></div>
+        <div class="cons"><h4>Cons</h4><ul><li>More components to build</li><li>Table with 8k rows needs virtualization</li></ul></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="option" data-choice="focused" onclick="toggleSelect(this)">
+    <div class="letter">C</div>
+    <div class="content">
+      <h3>Globe + Smart Analytics — Recommended ★</h3>
+      <p>KPI cards + globe (left, dominant) + 2 focused charts beside it (orbit class donut + launch timeline). Below: a constellation breakdown bar chart + condensed satellite list that reacts to globe selection. No sprawling table — the globe IS the data explorer.</p>
+      <div class="pros-cons" style="margin-top:8px">
+        <div class="pros"><h4>Pros</h4><ul><li>Globe stays hero element</li><li>Charts add context without overwhelming</li><li>Selected satellite shows a detail panel</li><li>Feels distinct from the asteroid page</li></ul></div>
+        <div class="cons"><h4>Cons</h4><ul><li>Slightly more layout work</li></ul></div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<div class="section" style="margin-top:24px;padding:16px;background:rgba(56,189,248,0.05);border:1px solid rgba(56,189,248,0.15);border-radius:8px;">
+  <p class="label">Data analyst perspective — what the charts would reveal</p>
+  <p style="font-size:13px;margin-top:8px;color:#94a3b8">
+    <strong style="color:#e2e8f0">Orbit class donut</strong> — ~70% of active sats are in LEO (below 2000 km), mostly Starlink. Shows just how crowded low orbit has become.<br><br>
+    <strong style="color:#e2e8f0">Launch year timeline</strong> — the Starlink explosion from 2019 onwards is the most dramatic trend in spaceflight history. A bar chart makes this visceral.<br><br>
+    <strong style="color:#e2e8f0">Country/operator breakdown</strong> — US dominates (~60%), followed by China, UK (Starlink), Russia. Shows geopolitical dimension of space.<br><br>
+    <strong style="color:#e2e8f0">Constellation summary</strong> — Starlink alone is 60%+ of all active sats. Putting that in context of GPS, ISS, weather sats creates a striking picture.
+  </p>
+</div>
