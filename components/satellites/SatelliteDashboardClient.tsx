@@ -3,7 +3,8 @@
 
 import { useState, useMemo } from "react";
 import dynamic from "next/dynamic";
-import type { SatelliteObject } from "@/lib/celestrak/types";
+import useSWR from "swr";
+import type { SatelliteObject, TleDerived } from "@/lib/celestrak/types";
 import {
   SatelliteSidebar,
   DEFAULT_SATELLITE_FILTERS,
@@ -27,6 +28,12 @@ function GlobePlaceholder() {
   );
 }
 
+const tleFetcher = (url: string): Promise<TleDerived> =>
+  fetch(url).then((r) => {
+    if (!r.ok) throw new Error(`TLE fetch failed: ${r.status}`);
+    return r.json();
+  });
+
 interface Props {
   initialObjects: SatelliteObject[];
 }
@@ -34,12 +41,18 @@ interface Props {
 export function SatelliteDashboardClient({ initialObjects }: Props) {
   const [filters, setFilters] = useState<SatelliteFilterState>(DEFAULT_SATELLITE_FILTERS);
   const [selectedNoradId, setSelectedNoradId] = useState<number | null>(null);
-  // Single source of truth for live position — fed by SatelliteGlobe's SGP4 interval
   const [liveLatLng, setLiveLatLng] = useState<{ lat: number; lng: number } | null>(null);
+
+  // SWR fetches TLE only when a satellite is selected (null key = skip).
+  // Results are cached — clicking the same satellite twice re-uses the cached TLE.
+  const { data: selectedTle } = useSWR<TleDerived>(
+    selectedNoradId !== null ? `/api/satellites/tle/${selectedNoradId}` : null,
+    tleFetcher,
+    { revalidateOnFocus: false }
+  );
 
   const filtered = useMemo(() => {
     let result = initialObjects;
-
     if (filters.search.trim()) {
       const q = filters.search.trim().toLowerCase();
       result = result.filter(
@@ -52,7 +65,6 @@ export function SatelliteDashboardClient({ initialObjects }: Props) {
     if (filters.orbitClasses.size > 0) {
       result = result.filter((o) => filters.orbitClasses.has(o.orbitClass));
     }
-
     return result;
   }, [initialObjects, filters]);
 
@@ -69,23 +81,22 @@ export function SatelliteDashboardClient({ initialObjects }: Props) {
       />
 
       <main className="flex-1 overflow-y-auto p-4 sm:p-6 space-y-6">
-        {/* Globe + charts row */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
-          {/* Globe — takes 2/3 width on large screens */}
           <section className="lg:col-span-2 bg-space-900 border border-space-700 rounded-xl p-4">
             <h2 className="text-xs font-mono text-slate-400 uppercase tracking-widest mb-1">
               Live Orbital Positions
             </h2>
             <p className="text-xs text-slate-500 mb-4">
               Dots are color-coded by orbit class. Select a satellite to see its orbit ring
-              and live position (updated every 2 s via TLE propagation).
+              and live SGP4-propagated position (updated every 2 s).
             </p>
             <SatelliteGlobe
               objects={filtered}
               selectedNoradId={selectedNoradId}
+              selectedTle={selectedTle ?? null}
               onSelectNoradId={(id) => {
                 setSelectedNoradId(id);
-                if (id === null) setLiveLatLng(null); // clear when deselected
+                if (id === null) setLiveLatLng(null);
               }}
               onLivePosition={(lat, lng) => setLiveLatLng({ lat, lng })}
               width={600}
@@ -93,14 +104,12 @@ export function SatelliteDashboardClient({ initialObjects }: Props) {
             />
           </section>
 
-          {/* Charts column */}
           <div className="flex flex-col gap-4">
             <OrbitClassDonut objects={initialObjects} />
             <LaunchTimeline objects={initialObjects} />
           </div>
         </div>
 
-        {/* Bottom row: constellation bar + detail panel */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
           <div className="lg:col-span-2">
             <ConstellationBar objects={initialObjects} />
@@ -109,6 +118,7 @@ export function SatelliteDashboardClient({ initialObjects }: Props) {
             {selected ? (
               <SatelliteDetailPanel
                 satellite={selected}
+                tleDerived={selectedTle ?? null}
                 onClose={() => { setSelectedNoradId(null); setLiveLatLng(null); }}
                 liveLatLng={liveLatLng}
               />
@@ -122,7 +132,6 @@ export function SatelliteDashboardClient({ initialObjects }: Props) {
           </div>
         </div>
 
-        {/* Filter summary */}
         <p className="text-xs font-mono text-slate-600">
           Showing {filtered.length.toLocaleString()} of {initialObjects.length.toLocaleString()} active satellites
         </p>
