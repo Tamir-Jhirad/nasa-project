@@ -4,20 +4,16 @@
 import { useRef, useEffect, useCallback, useMemo } from "react";
 import Globe from "react-globe.gl";
 import * as THREE from "three";
-import {
-  twoline2satrec,
-  propagate,
-  gstime,
-  eciToGeodetic,
-} from "satellite.js";
-import type { SatelliteObject, OrbitClass } from "@/lib/celestrak/types";
+import { twoline2satrec, propagate, gstime, eciToGeodetic } from "satellite.js";
+import type { SatelliteObject, OrbitClass, TleDerived } from "@/lib/celestrak/types";
 import { computeOrbitPointsGeo } from "@/lib/celestrak/orbitUtils";
 
 interface Props {
   objects: SatelliteObject[];
   selectedNoradId: number | null;
+  selectedTle: TleDerived | null;
   onSelectNoradId: (id: number | null) => void;
-  onLivePosition?: (lat: number, lng: number) => void; // fired every 2 s — drives detail panel
+  onLivePosition?: (lat: number, lng: number) => void;
   width?: number;
   height?: number;
 }
@@ -44,27 +40,14 @@ const ORBIT_CLASS_COLOR: Record<OrbitClass, string> = {
   HEO: "#a78bfa",
 };
 
-// react-globe.gl renders its Earth sphere at radius 100 THREE.js units
-const GLOBE_ER_SCALE = 100; // 1 Earth radius = 100 THREE.js units
+const GLOBE_ER_SCALE = 100;
 const EARTH_RADIUS_KM = 6371;
 const MU_KM3_S2 = 398600.4418;
-
-function deriveOrbitalElements(sat: SatelliteObject) {
-  const T = sat.periodMin * 60; // seconds
-  const a_km = (MU_KM3_S2 * (T / (2 * Math.PI)) ** 2) ** (1 / 3);
-  const a_ER = a_km / EARTH_RADIUS_KM;
-  return {
-    a: a_ER,
-    e: sat.eccentricity,
-    i: sat.inclinationDeg,
-    om: sat.raanDeg,
-    w: sat.argOfPericenterDeg,
-  };
-}
 
 export function SatelliteGlobe({
   objects,
   selectedNoradId,
+  selectedTle,
   onSelectNoradId,
   onLivePosition,
   width = 480,
@@ -79,7 +62,6 @@ export function SatelliteGlobe({
     onLivePositionRef.current = onLivePosition;
   }, [onLivePosition]);
 
-  // Initial camera position
   useEffect(() => {
     const g = globeEl.current;
     if (!g) return;
@@ -88,7 +70,7 @@ export function SatelliteGlobe({
     g.controls().autoRotateSpeed = 0.3;
   }, []);
 
-  // Orbit ring + live position animation
+  // Orbit ring + live position — triggered when selectedTle arrives
   useEffect(() => {
     const globe = globeEl.current;
 
@@ -110,42 +92,45 @@ export function SatelliteGlobe({
     }
 
     removeOrbit();
+    if (!selectedTle || !globe) return removeOrbit;
 
-    const sat = selectedNoradId
-      ? objects.find((o) => o.noradId === selectedNoradId) ?? null
-      : null;
+    const { tleLine1, tleLine2, inclinationDeg, eccentricity, periodMin, raanDeg, argOfPericenterDeg } = selectedTle;
 
-    if (!sat || !globe) return removeOrbit;
+    // Derive semi-major axis in Earth radii for orbit ring
+    const periodSec = periodMin * 60;
+    const a_km = (MU_KM3_S2 * (periodSec / (2 * Math.PI)) ** 2) ** (1 / 3);
+    const a_ER = a_km / EARTH_RADIUS_KM;
 
-    // Draw static orbit ring
-    const elements = deriveOrbitalElements(sat);
+    const elements = { a: a_ER, e: eccentricity, i: inclinationDeg, om: raanDeg, w: argOfPericenterDeg };
     const pts = computeOrbitPointsGeo(elements, 180);
     const positions = new Float32Array(pts.length * 3);
     pts.forEach(({ x, y, z }, idx) => {
-      // THREE.js axis swap: x→x, y→z, z→-y (Y-up ECI to Y-up globe frame)
       positions[idx * 3]     = x * GLOBE_ER_SCALE;
       positions[idx * 3 + 1] = z * GLOBE_ER_SCALE;
       positions[idx * 3 + 2] = -y * GLOBE_ER_SCALE;
     });
+
     const geo = new THREE.BufferGeometry();
     geo.setAttribute("position", new THREE.BufferAttribute(positions, 3));
-    const ringColor = ORBIT_CLASS_COLOR[sat.orbitClass] ?? "#94a3b8";
+
+    const selectedSat = objects.find((o) => o.noradId === selectedNoradId);
+    const ringColor = selectedSat ? (ORBIT_CLASS_COLOR[selectedSat.orbitClass] ?? "#94a3b8") : "#94a3b8";
+
     const mat = new THREE.LineBasicMaterial({ color: ringColor, linewidth: 1.5 });
     const orbitLine = new THREE.Line(geo, mat);
     orbitMeshRef.current = orbitLine;
     globe.scene().add(orbitLine);
 
-    // Live position dot
+    // Live dot
     const dotGeo = new THREE.SphereGeometry(1.5, 8, 8);
     const dotMat = new THREE.MeshBasicMaterial({ color: ringColor });
     const dot = new THREE.Mesh(dotGeo, dotMat);
     liveDotRef.current = dot;
     globe.scene().add(dot);
 
-    // TLE propagation — satrec created once per selection
     let satrec: ReturnType<typeof twoline2satrec> | null = null;
     try {
-      satrec = twoline2satrec(sat.tleLine1, sat.tleLine2);
+      satrec = twoline2satrec(tleLine1, tleLine2);
     } catch {
       satrec = null;
     }
@@ -155,7 +140,6 @@ export function SatelliteGlobe({
       const now = new Date();
       const posVel = propagate(satrec, now);
       const gmst = gstime(now);
-      // satellite.js returns false for position on propagation failure; cast via unknown to satisfy TS
       if (!posVel || (posVel.position as unknown) === false) return;
 
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -164,8 +148,7 @@ export function SatelliteGlobe({
       const lngRad = geoPos.longitude;
       const altKm = geoPos.height;
 
-      // Convert geodetic to THREE.js Cartesian (same axis convention as orbit ring)
-      const altER = 1 + altKm / EARTH_RADIUS_KM; // altitude in Earth radii from center
+      const altER = 1 + altKm / EARTH_RADIUS_KM;
       const cosLat = Math.cos(latRad);
       const x_eci = altER * cosLat * Math.cos(lngRad);
       const y_eci = altER * cosLat * Math.sin(lngRad);
@@ -176,8 +159,6 @@ export function SatelliteGlobe({
         z_eci * GLOBE_ER_SCALE,
         -y_eci * GLOBE_ER_SCALE
       );
-
-      // Notify parent so detail panel shows same position (single source of truth)
       onLivePositionRef.current?.(latRad * (180 / Math.PI), lngRad * (180 / Math.PI));
     }
 
@@ -189,46 +170,20 @@ export function SatelliteGlobe({
       removeOrbit();
     };
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [selectedNoradId]);
+  }, [selectedTle]);
 
-  // Compute page-load positions once — propagate every satellite to now at mount
-  const initPositions = useMemo(() => {
-    const now = new Date();
-    const gmst = gstime(now);
-    const map = new Map<number, { lat: number; lng: number }>();
-    for (const o of objects) {
-      try {
-        const rec = twoline2satrec(o.tleLine1, o.tleLine2);
-        const posVel = propagate(rec, now);
-        if (!posVel || (posVel.position as unknown) === false) continue;
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        const geoPos = eciToGeodetic(posVel.position as any, gmst);
-        map.set(o.noradId, {
-          lat: (geoPos.latitude * 180) / Math.PI,
-          lng: (geoPos.longitude * 180) / Math.PI,
-        });
-      } catch {
-        // skip satellites with bad TLEs
-      }
-    }
-    return map;
-  }, [objects]); // recompute only when objects change (not on selection)
-
-  // Satellite dots — color by orbit class
+  // Satellite dots — use lat/lng directly from N2YO (no SGP4 propagation needed)
   const points: GlobePoint[] = useMemo(
     () =>
-      objects.map((o) => {
-        const pos = initPositions.get(o.noradId);
-        return {
-          noradId: o.noradId,
-          lat: pos?.lat ?? 0,
-          lng: pos?.lng ?? 0,
-          size: o.noradId === selectedNoradId ? 0.6 : 0.2,
-          color: ORBIT_CLASS_COLOR[o.orbitClass],
-          label: `${o.name} (${o.orbitClass})`,
-        };
-      }),
-    [objects, selectedNoradId, initPositions]
+      objects.map((o) => ({
+        noradId: o.noradId,
+        lat: o.lat,
+        lng: o.lng,
+        size: o.noradId === selectedNoradId ? 0.6 : 0.2,
+        color: ORBIT_CLASS_COLOR[o.orbitClass],
+        label: `${o.name} (${o.orbitClass})`,
+      })),
+    [objects, selectedNoradId]
   );
 
   const handlePointClick = useCallback(
